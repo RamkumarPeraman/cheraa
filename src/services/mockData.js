@@ -1,0 +1,297 @@
+// Mock data for the NGO website
+
+export const mockProjects = [
+  {
+    id: 1,
+    title: "Education for All",
+    description: "Providing quality education to underprivileged children in rural areas.",
+    longDescription: "Our Education for All program has reached over 2000 children across 50 villages. We provide not just academic education but also life skills, computer literacy, and extracurricular activities.",
+    image: "/assets/projects/education.jpg",
+    status: "ongoing",
+    category: "Education",
+    progress: 75,
+    goal: 500000,
+    raised: 375000,
+    startDate: "2023-01-15",
+    endDate: "2024-12-31",
+    impact: {
+      children: 2000,
+      villages: 50,
+      teachers: 100,
+    },
+  },
+  {
+    id: 2,
+    title: "Women Empowerment",
+    description: "Skill development and livelihood programs for women.",
+    longDescription: "Through our women empowerment initiatives, we have helped over 1000 women become financially independent through vocational training and micro-enterprise support.",
+    image: "/assets/projects/women.jpg",
+    status: "ongoing",
+    category: "Women Empowerment",
+    progress: 60,
+    goal: 300000,
+    raised: 180000,
+    startDate: "2023-03-10",
+    endDate: "2024-06-30",
+    impact: {
+      women: 1000,
+      villages: 30,
+      businesses: 200,
+    },
+  },
+  {
+    id: 3,
+    title: "Healthcare Initiative",
+    description: "Mobile medical units serving remote communities.",
+    longDescription: "Our mobile healthcare units provide free medical checkups, medicines, and health awareness programs to communities with no access to healthcare facilities.",
+    image: "/assets/projects/healthcare.jpg",
+    status: "completed",
+    category: "Healthcare",
+    progress: 100,
+    goal: 250000,
+    raised: 275000,
+    startDate: "2022-06-01",
+    endDate: "2023-12-31",
+    impact: {
+      patients: 5000,
+      camps: 150,
+      villages: 75,
+    },
+  },
+  {
+    id: 4,
+    title: "Environmental Conservation",
+    description: "Tree planting and environmental awareness campaigns.",
+    longDescription: "We have planted over 50,000 trees and conducted awareness programs in schools and communities about environmental conservation and sustainable practices.",
+    image: "/assets/projects/environment.jpg",
+    status: "ongoing",
+    category: "Environment",
+    progress: 80,
+    goal: 150000,
+    raised: 120000,
+    startDate: "2023-02-20",
+    endDate: "2024-08-31",
+    impact: {
+      trees: 50000,
+      schools: 100,
+      volunteers: 2000,
+    },
+  },
+];
+
+export const mockBlogs = [
+  {
+    id: 1,
+    title: "Celebrating 5 Years of Impact",
+    excerpt: "Looking back at our journey and the lives we've touched together.",
+    content: "Full blog content here...",
+    author: "Rajesh Kumar",
+    date: "2024-01-15",
+    category: "Announcement",
+    image: "/assets/blogs/anniversary.jpg",
+    readTime: 5,
+    tags: ["anniversary", "impact", "milestone"],
+  },
+  {
+    id: 2,
+    title: "Meet Our Volunteers: Sarah's Story",
+    excerpt: "How one volunteer is making a difference in children's lives.",
+    content: "Full blog content here...",
+    author: "Priya Sharma",
+    date: "2024-01-10",
+    category: "Volunteer Stories",
+    image: "/assets/blogs/volunteer.jpg",
+    readTime: 4,
+    tags: ["volunteers", "stories", "impact"],
+  },
+  {
+    id: 3,
+    title: "Education Initiative Reaches 1000 Children",
+    excerpt: "A major milestone in our mission to educate every child.",
+    content: "Full blog content here...",
+    author: "Anand Patel",
+    date: "2024-01-05",
+    category: "Impact Report",
+    image: "/assets/blogs/education.jpg",
+    readTime: 6,
+    tags: ["education", "milestone", "children"],
+  },
+];
+
+export const mockEvents = [
+  {
+    id: 1,
+    title: "Annual Fundraising Gala",
+    description: "Join us for an evening of celebration and fundraising for our education programs.",
+    date: "2024-03-15",
+    time: "18:00 - 22:00",
+    location: "City Convention Center, Chennai",
+    type: "Fundraiser",
+    image: "/assets/events/gala.jpg",
+    capacity: 500,
+    registered: 350,
+    price: 1000,
+    speakers: ["Dr. Radha Krishnan", "Ms. Lakshmi Raj"],
+  },
+  {
+    id: 2,
+    title: "Volunteer Orientation",
+    description: "Learn how you can get involved and make a difference.",
+    date: "2024-02-20",
+    time: "10:00 - 13:00",
+    location: "NGO Office, Chennai",
+    type: "Training",
+    image: "/assets/events/orientation.jpg",
+    capacity: 50,
+    registered: 25,
+    price: 0,
+  },
+  {
+    id: 3,
+    title: "Tree Plantation Drive",
+    description: "Help us plant 1000 trees in the city's green belt.",
+    date: "2024-02-25",
+    time: "07:00 - 11:00",
+    location: "Green Park, Chennai",
+    type: "Community",
+    image: "/assets/events/plantation.jpg",
+    capacity: 200,
+    registered: 150,
+    price: 0,
+  },
+];
+
+export const mockTestimonials = [
+  {
+    id: 1,
+    name: "Maya Krishnan",
+    role: "Beneficiary",
+    content: "The education program changed my daughter's life. She's now in college and dreams of becoming a doctor.",
+    image: "/assets/testimonials/maya.jpg",
+    rating: 5,
+    date: "2024-01-20",
+  },
+  {
+    id: 2,
+    name: "Arun Prasad",
+    role: "Volunteer",
+    content: "Volunteering here has been the most rewarding experience. The team's dedication is truly inspiring.",
+    image: "/assets/testimonials/arun.jpg",
+    rating: 5,
+    date: "2024-01-18",
+  },
+  {
+    id: 3,
+    name: "Vidya Sagar",
+    role: "Partner Organization",
+    content: "Their commitment to transparency and impact measurement makes them an ideal partner.",
+    image: "/assets/testimonials/vidya.jpg",
+    rating: 5,
+    date: "2024-01-15",
+  },
+];
+
+export const mockTeam = [
+  {
+    id: 1,
+    name: "Dr. Suresh Kumar",
+    role: "Founder & Director",
+    bio: "With 20 years of experience in social work, Dr. Kumar founded Raavana Thalaigal to create lasting change.",
+    image: "/assets/team/suresh.jpg",
+    social: {
+      linkedin: "https://linkedin.com/in/sureshkumar",
+      twitter: "https://twitter.com/sureshkumar",
+    },
+  },
+  {
+    id: 2,
+    name: "Meena Rajan",
+    role: "Programs Director",
+    bio: "Meena oversees all our programs and ensures maximum impact with available resources.",
+    image: "/assets/team/meena.jpg",
+    social: {
+      linkedin: "https://linkedin.com/in/meenarajan",
+    },
+  },
+];
+
+export const mockMerchandise = [
+  {
+    id: 1,
+    name: "NGO T-Shirt",
+    description: "100% cotton t-shirt with our logo",
+    price: 499,
+    category: "Apparel",
+    image: "/assets/merchandise/tshirt.jpg",
+    sizes: ["S", "M", "L", "XL"],
+    colors: ["Red", "White", "Black"],
+    inStock: true,
+  },
+  {
+    id: 2,
+    name: "Annual Magazine 2023",
+    description: "Yearly publication featuring our impact stories",
+    price: 299,
+    category: "Publication",
+    image: "/assets/merchandise/magazine.jpg",
+    format: "Print + Digital",
+    inStock: true,
+  },
+  {
+    id: 3,
+    name: "Handmade Greeting Cards",
+    description: "Set of 10 eco-friendly cards made by our women artisans",
+    price: 199,
+    category: "Handicrafts",
+    image: "/assets/merchandise/cards.jpg",
+    inStock: true,
+  },
+];
+
+export const mockDonations = {
+  recent: [
+    { id: 1, name: "Anonymous", amount: 5000, date: "2024-01-20", project: "General" },
+    { id: 2, name: "Rajesh Shah", amount: 10000, date: "2024-01-19", project: "Education" },
+    { id: 3, name: "Priya Singh", amount: 2500, date: "2024-01-18", project: "Healthcare" },
+  ],
+  total: 1500000,
+  monthly: 250000,
+};
+
+export const mockReports = [
+  {
+    id: 1,
+    title: "Annual Report 2023",
+    year: 2023,
+    type: "Annual",
+    size: "5.2 MB",
+    url: "/reports/annual-2023.pdf",
+    thumbnail: "/assets/reports/annual-2023.jpg",
+  },
+  {
+    id: 2,
+    title: "Impact Report Q4 2023",
+    year: 2023,
+    quarter: "Q4",
+    type: "Quarterly",
+    size: "2.1 MB",
+    url: "/reports/q4-2023.pdf",
+    thumbnail: "/assets/reports/q4-2023.jpg",
+  },
+];
+
+export const mockFAQs = [
+  {
+    id: 1,
+    question: "How can I volunteer?",
+    answer: "You can sign up through our volunteer form, and our team will contact you with opportunities.",
+    category: "Volunteering",
+  },
+  {
+    id: 2,
+    question: "Is my donation tax-exempt?",
+    answer: "Yes, donations to Raavana Thalaigal are eligible for tax exemption under Section 80G.",
+    category: "Donations",
+  },
+];
+
