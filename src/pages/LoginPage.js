@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiMail, FiLock, FiUser, FiEye, FiEyeOff, FiPhone, FiCheckCircle } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import apiService from '../services/api';
+import ravanaLogo from "../asset/image/ravanan.png"
 
 const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -48,11 +49,11 @@ const LoginPage = () => {
 
   const handleSignupChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
+
     if (name === 'password') {
       checkPasswordStrength(value);
     }
-    
+
     setSignupData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
@@ -95,7 +96,7 @@ const LoginPage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    
+
     if (!loginData.email || !loginData.password) {
       toast.error('Please fill in all fields');
       return;
@@ -108,7 +109,7 @@ const LoginPage = () => {
       let role = 'member';
       let name = loginData.email.split('@')[0];
       let membershipType = 'Regular Member';
-      
+
       // Assign roles based on email domain or specific emails
       if (loginData.email === 'admin@rtngo.org' || loginData.email === 'superadmin@rtngo.org') {
         role = 'super_admin';
@@ -191,7 +192,7 @@ const LoginPage = () => {
       // Store in localStorage
       localStorage.setItem('authToken', 'mock-token-' + Date.now());
       localStorage.setItem('user', JSON.stringify(user));
-      
+
       // Set remember me
       if (loginData.rememberMe) {
         localStorage.setItem('rememberedEmail', loginData.email);
@@ -200,14 +201,14 @@ const LoginPage = () => {
       }
 
       toast.success(`Welcome back, ${name}!`);
-      
+
       // Redirect based on role
       if (role === 'super_admin' || role === 'admin') {
-        navigate('/users');
+        navigate('/');
       } else {
         navigate('/profile');
       }
-      
+
       // Reload to update header state
       window.location.reload();
     } catch (error) {
@@ -344,7 +345,7 @@ const LoginPage = () => {
   };
 
   // Load remembered email on component mount
-  React.useEffect(() => {
+  useEffect(() => {
     const rememberedEmail = localStorage.getItem('rememberedEmail');
     if (rememberedEmail) {
       setLoginData(prev => ({
@@ -361,7 +362,9 @@ const LoginPage = () => {
         {/* Logo and Title */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-primary-600 rounded-full mb-4 shadow-lg">
-            <span className="text-white font-bold text-3xl">RT</span>
+            <img
+              src={ravanaLogo}
+              alt="" />
           </div>
           <h2 className="text-3xl font-extrabold text-gray-900">
             {isLogin ? 'Welcome Back!' : 'Join Our Community'}
@@ -577,13 +580,13 @@ const LoginPage = () => {
                   {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
                 </button>
               </div>
-              
+
               {/* Password Strength Indicator */}
               {signupData.password && (
                 <div className="mt-2">
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div 
+                      <div
                         className={`h-full ${getPasswordStrengthColor()} transition-all duration-300`}
                         style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
                       ></div>

@@ -368,7 +368,7 @@ const ProfilePage = () => {
           <div className="h-32 bg-gradient-to-r from-primary-600 to-primary-800 relative">
             {user.role === 'admin' || user.role === 'super_admin' ? (
               <Link
-                to="/users"
+                to="/my-groups"
                 className="absolute bottom-4 right-4 bg-white text-gray-700 px-4 py-2 rounded-lg shadow-lg hover:bg-gray-100 transition-colors text-sm font-medium"
               >
                 <FiUsers className="inline mr-2" />
