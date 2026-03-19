@@ -391,7 +391,7 @@ const Header = () => {
             {!isLoggedIn && (
               <div className="px-4 mb-6">
                 <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                  Quick Actions
+                  Actions
                 </h3>
                 <div className="space-y-2">
                   <Link
