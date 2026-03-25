@@ -18,11 +18,11 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import BlogsMediaPage from './pages/BlogsMediaPage';
-import EventsPage from './pages/EventsPage';
-import ProfilePage from './pages/ProfilePage';
-import UserGroupPage from './pages/UserGroupPage';
+import EventsPage from './pages/EventsPageApi';
+import ProfilePage from './pages/ProfilePageApi';
+import UserGroupPage from './pages/UserGroupPageApi';
 import AccountSettingsPage from './pages/AccountSettingsPage';
-import ReportsPage from './pages/ReportsPage';
+import ReportsPage from './pages/ReportsPageApi';
 import ContactPage from './pages/ContactPage';
 import NotificationsPage from './pages/NotificationsPage';
 import MessagesPage from './pages/MessagesPage';
@@ -78,12 +78,12 @@ function App() {
 
             {/* Admin Routes */}
             <Route path="/my-groups" element={
-              <ProtectedRoute requiredRole={['admin', 'super_admin']}>
+              <ProtectedRoute requiredRole={['ADMIN', 'SUPER_ADMIN']}>
                 <UserGroupPage />
               </ProtectedRoute>
             } />
             <Route path="/admin" element={
-              <ProtectedRoute requiredRole={['admin', 'super_admin']}>
+              <ProtectedRoute requiredRole={['ADMIN', 'SUPER_ADMIN']}>
                 <AdminDashboardPage />
               </ProtectedRoute>
             } />
@@ -97,3 +97,4 @@ function App() {
 }
 
 export default App;
+

@@ -10,6 +10,7 @@ import {
 import { FaUserFriends, FaUserShield, FaHandHoldingHeart } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import apiService from '../services/api';
+import { processImageFile } from '../utils/imageUpload';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -232,14 +233,17 @@ const ProfilePage = () => {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({
-          ...prev,
-          profileImage: reader.result
-        }));
-      };
-      reader.readAsDataURL(file);
+      processImageFile(file)
+        .then((image) => {
+          setFormData(prev => ({
+            ...prev,
+            profileImage: image
+          }));
+          toast.success('Profile picture updated');
+        })
+        .catch(() => {
+          toast.error('Unable to process the selected image. Please choose a smaller image.');
+        });
     }
   };
 

@@ -13,6 +13,7 @@ import {
 } from 'react-icons/fi';
 import { FaGoogle, FaMicrosoft } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import { processImageFile } from '../utils/imageUpload';
 
 const AccountSettingsPage = () => {
   const navigate = useNavigate();
@@ -384,12 +385,14 @@ const AccountSettingsPage = () => {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setUser(prev => ({ ...prev, profileImage: reader.result }));
-        toast.success('Profile picture updated');
-      };
-      reader.readAsDataURL(file);
+      processImageFile(file)
+        .then((image) => {
+          setUser(prev => ({ ...prev, profileImage: image }));
+          toast.success('Profile picture updated');
+        })
+        .catch(() => {
+          toast.error('Unable to process the selected image. Please choose a smaller image.');
+        });
     }
   };
 

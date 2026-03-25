@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   FiX, FiSave, FiImage, FiCalendar, FiMapPin, 
   FiUser, FiTag, FiClock, FiDollarSign, FiHeart,
   FiUpload, FiTrash2, FiPlus
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
+import { processImageFile } from '../../utils/imageUpload';
 
 const ContentPopup = ({ type, item, onClose, onSave }) => {
   const [formData, setFormData] = useState({});
@@ -21,7 +22,7 @@ const ContentPopup = ({ type, item, onClose, onSave }) => {
           { name: 'category', label: 'Category', type: 'select', required: true, col: 'half',
             options: ['Education', 'Healthcare', 'Women Empowerment', 'Environment', 'Child Welfare', 'Skill Development'] },
           { name: 'status', label: 'Status', type: 'select', required: true, col: 'half',
-            options: ['ongoing', 'completed', 'upcoming'] },
+            options: ['ongoing', 'completed', 'planned'] },
           { name: 'description', label: 'Short Description', type: 'textarea', required: true, col: 'full', rows: 3 },
           { name: 'longDescription', label: 'Full Description', type: 'textarea', required: true, col: 'full', rows: 5 },
           { name: 'location', label: 'Location', type: 'text', col: 'half' },
@@ -105,11 +106,14 @@ const ContentPopup = ({ type, item, onClose, onSave }) => {
         fields: [
           { name: 'title', label: 'Report Title', type: 'text', required: true, col: 'full' },
           { name: 'type', label: 'Report Type', type: 'select', required: true, col: 'half',
-            options: ['annual', 'quarterly', 'impact', 'financial', 'project'] },
+            options: ['annual', 'quarterly', 'impact', 'financial', 'project', 'field_visit', 'sustainability', 'publication'] },
           { name: 'year', label: 'Year', type: 'select', col: 'half',
-            options: ['2024', '2023', '2022', '2021', '2020'] },
+            options: ['2026', '2025', '2024', '2023', '2022', '2021', '2020'] },
+          { name: 'category', label: 'Category', type: 'text', col: 'half' },
+          { name: 'period', label: 'Period', type: 'text', col: 'half', placeholder: 'e.g., FY 2025-26' },
           { name: 'description', label: 'Description', type: 'textarea', required: true, col: 'full', rows: 4 },
-          { name: 'publishedDate', label: 'Published Date', type: 'date', col: 'half' },
+          { name: 'publishedDate', label: 'Published Date', type: 'date', required: true, col: 'half' },
+          { name: 'url', label: 'File URL', type: 'text', col: 'half', placeholder: '/reports/example.pdf' },
           { name: 'pages', label: 'Number of Pages', type: 'number', col: 'half' },
           { name: 'fileSize', label: 'File Size', type: 'text', col: 'half', placeholder: 'e.g., 2.5 MB' }
         ]
@@ -127,8 +131,10 @@ const ContentPopup = ({ type, item, onClose, onSave }) => {
       const initialData = {};
       const config = getFormConfig();
       config.fields.forEach(field => {
-        if (field.type === 'list' || field.type === 'tags' || field.type === 'keyvalue') {
+        if (field.type === 'list' || field.type === 'tags') {
           initialData[field.name] = [];
+        } else if (field.type === 'keyvalue') {
+          initialData[field.name] = {};
         } else {
           initialData[field.name] = '';
         }
@@ -175,12 +181,15 @@ const ContentPopup = ({ type, item, onClose, onSave }) => {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result);
-        setFormData(prev => ({ ...prev, image: reader.result }));
-      };
-      reader.readAsDataURL(file);
+      processImageFile(file)
+        .then((compressedImage) => {
+          setPreviewImage(compressedImage);
+          setFormData(prev => ({ ...prev, image: compressedImage }));
+          toast.success('Image ready to upload');
+        })
+        .catch(() => {
+          toast.error('Unable to process the selected image. Please choose a smaller image.');
+        });
     }
   };
 
@@ -200,13 +209,12 @@ const ContentPopup = ({ type, item, onClose, onSave }) => {
     try {
       await onSave({
         ...formData,
-        id: item?.id || Date.now(),
-        type: type
+        id: item?.id || Date.now()
       });
       toast.success(`${item ? 'Updated' : 'Added'} successfully!`);
       onClose();
     } catch (error) {
-      toast.error('Operation failed');
+      toast.error(error?.response?.data?.message || error?.message || 'Operation failed');
     } finally {
       setLoading(false);
     }

@@ -17,6 +17,7 @@ const EventsPage = () => {
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [calendarFilterActive, setCalendarFilterActive] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -97,12 +98,13 @@ const EventsPage = () => {
       filtered = filtered.filter(event => event.type === selectedCategory);
     }
 
-    // Filter by date (if calendar date selected)
-    const selectedDateStr = selectedDate.toDateString();
-    filtered = filtered.filter(event => {
-      const eventDate = new Date(event.date).toDateString();
-      return eventDate === selectedDateStr;
-    });
+    if (calendarFilterActive) {
+      const selectedDateStr = selectedDate.toDateString();
+      filtered = filtered.filter(event => {
+        const eventDate = new Date(event.date).toDateString();
+        return eventDate === selectedDateStr;
+      });
+    }
 
     // Filter by tab
     const today = new Date();
@@ -515,14 +517,27 @@ END:VCALENDAR`;
             <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
               <h3 className="text-lg font-semibold mb-4">Event Calendar</h3>
               <Calendar
-                onChange={setSelectedDate}
+                onChange={(date) => {
+                  setSelectedDate(date);
+                  setCalendarFilterActive(true);
+                }}
                 value={selectedDate}
                 tileClassName={tileClassName}
                 className="w-full border-none"
               />
               <p className="text-sm text-gray-600 mt-4 text-center">
-                Events on {selectedDate.toLocaleDateString()}: {filteredEvents.length}
+                {calendarFilterActive
+                  ? `Events on ${selectedDate.toLocaleDateString()}: ${filteredEvents.length}`
+                  : `Showing all matching events: ${filteredEvents.length}`}
               </p>
+              {calendarFilterActive && (
+                <button
+                  onClick={() => setCalendarFilterActive(false)}
+                  className="mt-3 w-full text-sm text-primary-600 font-semibold hover:text-primary-700"
+                >
+                  Clear date filter
+                </button>
+              )}
             </div>
 
             {/* Upcoming Events Summary */}

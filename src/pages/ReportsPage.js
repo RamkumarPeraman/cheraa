@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { 
+import React, { useEffect, useMemo, useState } from 'react';
+import {
   FiDownload, FiEye, FiCalendar, FiFileText, FiBarChart2,
-  FiFilter, FiSearch, FiChevronLeft, FiChevronRight,
-  FiAward, FiHeart, FiUsers, FiMapPin, FiClock,
-  FiTrendingUp, FiDollarSign, FiCheckCircle, FiStar
+  FiSearch, FiChevronLeft, FiChevronRight,
+  FiAward, FiHeart, FiDollarSign, FiCheckCircle, FiStar
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import ReportPopup from '../components/common/ReportPopup';
+import apiService from '../services/api';
 
 const ReportsPage = () => {
   const [activeTab, setActiveTab] = useState('all');

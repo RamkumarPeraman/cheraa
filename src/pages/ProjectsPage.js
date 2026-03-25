@@ -1,16 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  FiHeart, FiUsers, FiMapPin, FiCalendar, FiArrowRight, 
+import {
+  FiHeart, FiUsers, FiMapPin, FiCalendar,
   FiFilter, FiSearch, FiCheckCircle, FiClock, FiBarChart2,
   FiDownload, FiEye, FiAward, FiTarget
 } from 'react-icons/fi';
-import { toast } from "react-toastify";
+import { toast } from 'react-toastify';
 import apiService from '../services/api';
+
+const defaultImpactMetrics = {
+  totalProjects: 25,
+  ongoingProjects: 12,
+  completedProjects: 13,
+  livesImpacted: 15000,
+  volunteersEngaged: 800,
+  statesReached: 10,
+};
+
+const getProjectStatusLabel = (status) => {
+  if (status === 'ongoing') {
+    return 'Ongoing';
+  }
+
+  if (status === 'planned') {
+    return 'Planned';
+  }
+
+  return 'Completed';
+};
+
+const getProjectStatusClass = (status) => {
+  if (status === 'ongoing') {
+    return 'bg-green-100 text-green-800';
+  }
+
+  if (status === 'planned') {
+    return 'bg-yellow-100 text-yellow-800';
+  }
+
+  return 'bg-gray-100 text-gray-800';
+};
 
 const ProjectsPage = () => {
   const [projects, setProjects] = useState([]);
   const [filteredProjects, setFilteredProjects] = useState([]);
+  const [impactMetrics, setImpactMetrics] = useState(defaultImpactMetrics);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
@@ -30,31 +64,45 @@ const ProjectsPage = () => {
     'Community Development',
   ];
 
-  // Impact metrics
-  const impactMetrics = {
-    totalProjects: 25,
-    ongoingProjects: 12,
-    completedProjects: 13,
-    livesImpacted: 15000,
-    volunteersEngaged: 800,
-    statesReached: 10,
-  };
-
   useEffect(() => {
     fetchProjects();
   }, []);
 
   useEffect(() => {
-    filterProjects();
+    let filtered = [...projects];
+
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(p =>
+        p.category?.toLowerCase() === selectedCategory.toLowerCase()
+      );
+    }
+
+    if (selectedStatus !== 'all') {
+      filtered = filtered.filter(p => p.status === selectedStatus);
+    }
+
+    if (searchTerm) {
+      filtered = filtered.filter(p =>
+        p.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    setFilteredProjects(filtered);
   }, [projects, selectedCategory, selectedStatus, searchTerm]);
 
   const fetchProjects = async () => {
     try {
-      const data = await apiService.getProjects();
-      setProjects(data);
-      setFilteredProjects(data);
+      const [projectData, metricsData] = await Promise.all([
+        apiService.getProjects(),
+        apiService.getProjectMetrics(),
+      ]);
+      setProjects(projectData);
+      setFilteredProjects(projectData);
+      setImpactMetrics(metricsData || defaultImpactMetrics);
     } catch (error) {
       console.error('Error fetching projects:', error);
+      toast.error('Unable to load projects right now');
     } finally {
       setLoading(false);
     }
@@ -96,9 +144,14 @@ const ProjectsPage = () => {
     setSelectedProject(null);
   };
 
-  const downloadReport = (projectId) => {
-    // Mock download function
-    toast.success('Report download started');
+  const downloadReport = (project) => {
+    if (project?.reportUrl) {
+      window.open(project.reportUrl, '_blank', 'noopener,noreferrer');
+      toast.success('Opening project report');
+      return;
+    }
+
+    toast.info('Report will be available soon');
   };
 
   if (loading) {
@@ -187,6 +240,7 @@ const ProjectsPage = () => {
               >
                 <option value="all">All Status</option>
                 <option value="ongoing">Ongoing</option>
+                <option value="planned">Planned</option>
                 <option value="completed">Completed</option>
               </select>
             </div>
@@ -216,12 +270,8 @@ const ProjectsPage = () => {
                   />
                 )}
                 <div className="absolute top-4 right-4">
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    project.status === 'ongoing' 
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    {project.status === 'ongoing' ? 'Ongoing' : 'Completed'}
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getProjectStatusClass(project.status)}`}>
+                    {getProjectStatusLabel(project.status)}
                   </span>
                 </div>
                 {project.category && (
@@ -344,12 +394,8 @@ const ProjectsPage = () => {
                   <div>
                     <h2 className="text-2xl font-bold">{selectedProject.title}</h2>
                     <div className="flex items-center mt-2">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold mr-3 ${
-                        selectedProject.status === 'ongoing' 
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {selectedProject.status === 'ongoing' ? 'Ongoing' : 'Completed'}
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold mr-3 ${getProjectStatusClass(selectedProject.status)}`}>
+                        {getProjectStatusLabel(selectedProject.status)}
                       </span>
                       {selectedProject.category && (
                         <span className="bg-primary-100 text-primary-800 px-3 py-1 rounded-full text-xs font-semibold">
@@ -459,9 +505,9 @@ const ProjectsPage = () => {
                     </div>
 
                     {/* Download Report */}
-                    {selectedProject.report && (
+                    {(selectedProject.reportUrl || selectedProject.report) && (
                       <button
-                        onClick={() => downloadReport(selectedProject.id)}
+                        onClick={() => downloadReport(selectedProject)}
                         className="w-full mt-4 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center justify-center"
                       >
                         <FiDownload className="mr-2" />

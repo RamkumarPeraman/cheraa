@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FiUser, FiMail, FiPhone, FiMapPin, FiCalendar, FiHeart, FiClock, FiAward, FiCheckCircle } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import apiService from '../services/api';
@@ -6,6 +6,7 @@ import apiService from '../services/api';
 const VolunteerPage = () => {
   const [activeTab, setActiveTab] = useState('opportunities');
   const [loading, setLoading] = useState(false);
+  const [opportunities, setOpportunities] = useState([]);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -77,75 +78,18 @@ const VolunteerPage = () => {
     'Public Speaking',
   ];
 
-  // Volunteer opportunities
-  const opportunities = [
-    {
-      id: 1,
-      title: 'Evening Tutor for Underprivileged Children',
-      location: 'Chennai - Multiple Centers',
-      commitment: '2-3 hours/week',
-      category: 'Education',
-      description: 'Help children with their homework and teach basic subjects in our evening study centers.',
-      requirements: ['Good communication skills', 'Patience with children', 'Basic math and language skills'],
-      spots: 5,
-      image: '/assets/volunteer/tutoring.jpg',
-    },
-    {
-      id: 2,
-      title: 'Healthcare Camp Assistant',
-      location: 'Rural Areas near Chennai',
-      commitment: 'Full day on weekends',
-      category: 'Healthcare',
-      description: 'Assist doctors and nurses during our mobile medical camps in rural communities.',
-      requirements: ['Medical background preferred', 'Compassionate', 'Ability to travel'],
-      spots: 3,
-      image: '/assets/volunteer/healthcare.jpg',
-    },
-    {
-      id: 3,
-      title: 'Women Empowerment Workshop Facilitator',
-      location: 'Chennai',
-      commitment: '4 hours/week',
-      category: 'Women Empowerment',
-      description: 'Conduct skill development workshops for women from low-income communities.',
-      requirements: ['Experience in training/facilitation', 'Knowledge of any skill (sewing, computer, etc.)'],
-      spots: 2,
-      image: '/assets/volunteer/women.jpg',
-    },
-    {
-      id: 4,
-      title: 'Tree Plantation Drive Coordinator',
-      location: 'Chennai & Surroundings',
-      commitment: 'Flexible',
-      category: 'Environment',
-      description: 'Help organize and coordinate tree plantation events in different parts of the city.',
-      requirements: ['Organizational skills', 'Passion for environment', 'Physical fitness'],
-      spots: 8,
-      image: '/assets/volunteer/environment.jpg',
-    },
-    {
-      id: 5,
-      title: 'Social Media Volunteer',
-      location: 'Remote',
-      commitment: '5-7 hours/week',
-      category: 'Communications',
-      description: 'Help manage our social media accounts and create engaging content about our work.',
-      requirements: ['Social media expertise', 'Content creation skills', 'Creative thinking'],
-      spots: 2,
-      image: '/assets/volunteer/social.jpg',
-    },
-    {
-      id: 6,
-      title: 'Fundraising Event Volunteer',
-      location: 'Chennai',
-      commitment: 'Event-based',
-      category: 'Fundraising',
-      description: 'Help organize and run fundraising events, from planning to execution.',
-      requirements: ['Event management skills', 'Enthusiasm', 'Team player'],
-      spots: 10,
-      image: '/assets/volunteer/fundraising.jpg',
-    },
-  ];
+  useEffect(() => {
+    const loadOpportunities = async () => {
+      try {
+        const data = await apiService.getVolunteerOpportunities();
+        setOpportunities(data);
+      } catch (error) {
+        console.error('Error fetching volunteer opportunities:', error);
+      }
+    };
+
+    loadOpportunities();
+  }, []);
 
   // Testimonials
   const volunteerTestimonials = [
@@ -274,7 +218,7 @@ const VolunteerPage = () => {
         setActiveTab('opportunities');
       }
     } catch (error) {
-      toast.error('Something went wrong. Please try again.');
+      toast.error(error.response?.data?.message || error.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -198,42 +198,22 @@ const SignupPage = () => {
     setLoading(true);
 
     try {
-      // Determine role based on email or interests
       let role = 'member';
       if (formData.interests.includes('Volunteer') || formData.email.includes('volunteer')) {
         role = 'volunteer';
       } else if (formData.email.includes('donor')) {
         role = 'donor';
       }
-
-      // Create user object
-      const user = {
-        id: Math.floor(Math.random() * 1000),
+      await apiService.signup({
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        role: role,
-        joinDate: new Date().toISOString().split('T')[0],
-        membershipType: role === 'member' ? 'Regular Member' :
-          role === 'volunteer' ? 'Volunteer' :
-            role === 'donor' ? 'Donor' : 'Member',
-        membershipId: 'RT' + Math.floor(Math.random() * 10000),
-        dateOfBirth: formData.dateOfBirth || '',
-        gender: formData.gender || 'Not Specified',
-        bloodGroup: 'Unknown',
+        password: formData.password,
+        role,
+        dateOfBirth: formData.dateOfBirth,
+        gender: formData.gender,
         address: formData.address,
-        occupation: '',
-        organization: '',
-        profileImage: null,
-        bio: `I am a new ${role} at Raavana Thalaigal NGO.`,
         interests: formData.interests,
-        skills: [],
-        socialLinks: {
-          facebook: '',
-          twitter: '',
-          linkedin: '',
-          instagram: ''
-        },
         preferences: {
           emailNotifications: formData.agreeUpdates,
           smsNotifications: false,
@@ -241,33 +221,13 @@ const SignupPage = () => {
           newsletter: formData.agreeUpdates,
           eventReminders: true,
           volunteerOpportunities: true
-        },
-        privacy: {
-          showEmail: false,
-          showPhone: true,
-          showAddress: false,
-          showDonations: true
-        },
-        stats: {
-          volunteerHours: 0,
-          eventsAttended: 0,
-          donationsMade: 0,
-          totalDonated: 0,
-          projectsSupported: 0,
-          badges: 0,
-          impactScore: 0
         }
-      };
-
-      // Store in localStorage
-      localStorage.setItem('authToken', 'mock-token-' + Date.now());
-      localStorage.setItem('user', JSON.stringify(user));
+      });
 
       toast.success('Registration successful! Welcome to Raavana Thalaigal!');
       navigate('/profile');
-      window.location.reload();
     } catch (error) {
-      toast.error('Registration failed. Please try again.');
+      toast.error(error.response?.data?.message || error.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -258,6 +258,67 @@ export const mockDonations = {
   monthly: 250000,
 };
 
+export const mockDonationsList = {
+  success: true,
+  data: mockDonations.recent,
+};
+
+export const mockServices = {
+  success: true,
+  data: [
+    {
+      id: 1,
+      title: "Education support request",
+      category: "education",
+      status: "pending",
+      createdAt: "2024-01-20",
+    },
+    {
+      id: 2,
+      title: "Healthcare camp assistance",
+      category: "healthcare",
+      status: "in_progress",
+      createdAt: "2024-01-18",
+    },
+  ],
+};
+
+export const mockVolunteers = {
+  success: true,
+  data: [
+    {
+      id: 1,
+      name: "Priya Krishnan",
+      email: "priya@example.com",
+      status: "active",
+      skills: ["Teaching", "Fundraising"],
+    },
+    {
+      id: 2,
+      name: "Arun Kumar",
+      email: "arun@example.com",
+      status: "pending",
+      skills: ["Healthcare", "Event Management"],
+    },
+  ],
+};
+
+export const mockDashboardStats = {
+  success: true,
+  data: {
+    donations: {
+      totalAmount: 1500000,
+      totalDonations: mockDonations.recent.length,
+      monthlyDonors: 250,
+      oneTimeDonors: 1200,
+      thisMonthAmount: mockDonations.monthly,
+    },
+    volunteers: mockVolunteers.data.length,
+    services: mockServices.data.length,
+    pendingServices: mockServices.data.filter((service) => service.status === "pending").length,
+  },
+};
+
 export const mockReports = [
   {
     id: 1,

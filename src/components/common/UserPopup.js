@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   FiX, FiUser, FiMail, FiPhone, FiMapPin, FiCalendar,
   FiAward, FiClock, FiHeart, FiShield, FiBriefcase,
   FiGlobe, FiCamera, FiSave, FiUserPlus
 } from 'react-icons/fi';
 import { FaUserShield, FaUserCog, FaUserTie, FaUserGraduate } from 'react-icons/fa';
+import { processImageFile } from '../../utils/imageUpload';
 
 const UserPopup = ({ mode, user, onClose, onSave, currentUser }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
+    password: '',
     role: 'member',
     department: '',
     status: 'active',
@@ -39,8 +41,8 @@ const UserPopup = ({ mode, user, onClose, onSave, currentUser }) => {
   });
 
   const [activeTab, setActiveTab] = useState('basic');
-  const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [imageError, setImageError] = useState('');
 
   // Role definitions
   const roles = {
@@ -90,6 +92,7 @@ const UserPopup = ({ mode, user, onClose, onSave, currentUser }) => {
         name: user.name || '',
         email: user.email || '',
         phone: user.phone || '',
+        password: '',
         role: user.role || 'member',
         department: user.department || '',
         status: user.status || 'active',
@@ -159,12 +162,16 @@ const UserPopup = ({ mode, user, onClose, onSave, currentUser }) => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setSelectedFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result);
-      };
-      reader.readAsDataURL(file);
+      setImageError('');
+
+      processImageFile(file)
+        .then((compressedImage) => {
+          setPreviewUrl(compressedImage);
+        })
+        .catch(() => {
+          setPreviewUrl(formData.profileImage || null);
+          setImageError('Selected image is too large. Please choose a smaller image.');
+        });
     }
   };
 
@@ -174,6 +181,11 @@ const UserPopup = ({ mode, user, onClose, onSave, currentUser }) => {
     // Validate required fields
     if (!formData.name || !formData.email || !formData.phone) {
       alert('Please fill in all required fields');
+      return;
+    }
+
+    if (mode === 'add' && !formData.password) {
+      alert('Please enter a password');
       return;
     }
 
@@ -277,6 +289,14 @@ const UserPopup = ({ mode, user, onClose, onSave, currentUser }) => {
                   <p className="mt-2 text-sm text-gray-500">
                     {isViewMode ? 'Profile Photo' : 'Click camera to upload'}
                   </p>
+                  {!isViewMode && (
+                    <p className="mt-1 text-xs text-gray-400">
+                      Large images are automatically resized before upload.
+                    </p>
+                  )}
+                  {imageError && (
+                    <p className="mt-2 text-sm text-red-600">{imageError}</p>
+                  )}
                 </div>
               </div>
 
@@ -336,6 +356,22 @@ const UserPopup = ({ mode, user, onClose, onSave, currentUser }) => {
                       />
                     )}
                   </div>
+
+                  {!isViewMode && isAddMode && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Password <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="password"
+                        name="password"
+                        value={formData.password || ''}
+                        onChange={handleInputChange}
+                        className="w-full p-2 border border-gray-300 rounded-lg focus:border-primary-500 focus:outline-none"
+                        placeholder="Enter password"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-4">
