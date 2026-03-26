@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiMail, FiLock, FiUser, FiEye, FiEyeOff, FiPhone, FiCheckCircle } from 'react-icons/fi';
+import { FiMail, FiLock, FiUser, FiEye, FiEyeOff, FiPhone } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import apiService from '../services/api';
 import ravanaLogo from '../asset/image/ravanan.png';
@@ -147,20 +147,6 @@ const LoginPage = () => {
     }
   };
 
-  const demoCredentials = [
-    { email: 'superadmin@rtngo.org', password: 'admin123', role: 'Super Admin', color: 'purple' },
-    { email: 'admin@rtngo.org', password: 'admin123', role: 'Admin', color: 'red' },
-    { email: 'manager@rtngo.org', password: 'manager123', role: 'Manager', color: 'blue' },
-    { email: 'coordinator@rtngo.org', password: 'coord123', role: 'Coordinator', color: 'green' },
-    { email: 'volunteer@rtngo.org', password: 'vol12345', role: 'Volunteer', color: 'indigo' },
-    { email: 'donor@rtngo.org', password: 'donor123', role: 'Donor', color: 'yellow' },
-    { email: 'member@rtngo.org', password: 'member123', role: 'Member', color: 'gray' },
-  ];
-
-  const fillDemoCredentials = (email, password) => {
-    setLoginData({ ...loginData, email, password });
-  };
-
   useEffect(() => {
     const rememberedEmail = localStorage.getItem('rememberedEmail');
     if (rememberedEmail) {
@@ -183,22 +169,6 @@ const LoginPage = () => {
             </button>
           </p>
         </div>
-
-        {isLogin && (
-          <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-6 mb-6">
-            <p className="text-sm font-semibold text-gray-700 mb-3 flex items-center"><FiCheckCircle className="text-green-500 mr-2" />Demo Accounts (Click to fill)</p>
-            <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
-              {demoCredentials.map((demo, index) => (
-                <button key={index} onClick={() => fillDemoCredentials(demo.email, demo.password)} className={`w-full text-left text-sm bg-${demo.color}-50 hover:bg-${demo.color}-100 p-3 rounded-lg border border-${demo.color}-200 transition-all transform hover:scale-102`}>
-                  <span className={`font-semibold text-${demo.color}-700`}>{demo.role}:</span>
-                  <span className="text-gray-600 ml-2">{demo.email}</span>
-                  <span className="text-gray-400 text-xs ml-2">({demo.password})</span>
-                </button>
-              ))}
-            </div>
-            <p className="text-xs text-gray-500 mt-3">Different roles show different permissions and access levels</p>
-          </div>
-        )}
 
         {isLogin ? (
           <form onSubmit={handleLogin} className="bg-white shadow-xl rounded-lg px-8 pt-6 pb-8 mb-4">

@@ -1,7 +1,7 @@
 // API Configuration
 const config = {
   api: {
-    baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
+    baseURL: process.env.REACT_APP_API_URL || 'https://raavanan-api.onrender.com/api',
     timeout: 10000,
     headers: {
       'Content-Type': 'application/json',
@@ -49,7 +49,7 @@ const config = {
       },
     },
   },
-  
+
   // Feature flags for phased implementation
   features: {
     phase1: {
@@ -73,7 +73,7 @@ const config = {
       paymentGateway: false,
     },
   },
-  
+
   // Payment configuration
   payment: {
     razorpayKey: process.env.REACT_APP_RAZORPAY_KEY || 'rzp_test_mock_key',
@@ -86,7 +86,7 @@ const config = {
       maxAmount: 100000,
     },
   },
-  
+
   // Donation types
   donationTypes: {
     oneTime: {
@@ -101,7 +101,7 @@ const config = {
       percentageRange: { min: 1, max: 5 },
     },
   },
-  
+
   // Donation purposes
   donationPurposes: [
     { value: 'general', label: 'General Fund', description: 'Support overall operations' },
@@ -110,7 +110,7 @@ const config = {
     { value: 'disaster', label: 'Disaster Relief', description: 'Emergency relief efforts' },
     { value: 'community', label: 'Community Development', description: 'Community projects' },
   ],
-  
+
   // Service types
   serviceTypes: [
     { value: 'education', label: 'Education Support', icon: '📚' },
@@ -119,7 +119,7 @@ const config = {
     { value: 'shelter', label: 'Shelter Support', icon: '🏠' },
     { value: 'other', label: 'Other Services', icon: '🤝' },
   ],
-  
+
   // Volunteer roles and skills
   volunteerRoles: {
     skills: [
@@ -138,7 +138,7 @@ const config = {
       { value: 'flexible', label: 'Flexible Schedule' },
     ],
   },
-  
+
   // Social media links
   socialMedia: {
     facebook: 'https://facebook.com/raavanathalaigal',
@@ -147,7 +147,7 @@ const config = {
     linkedin: 'https://linkedin.com/company/raavanathalaigal',
     youtube: 'https://youtube.com/raavanathalaigal',
   },
-  
+
   // Navigation items
   navigation: {
     main: [
@@ -174,7 +174,7 @@ const config = {
       ],
     },
   },
-  
+
   // Announcement banner
   announcement: {
     show: false,
@@ -182,7 +182,7 @@ const config = {
     cta: "Donate Now",
     ctaLink: "/donate",
   },
-  
+
   // Impact metrics (will be fetched from API)
   impactMetrics: {
     lives: 5000,
@@ -190,7 +190,7 @@ const config = {
     projects: 25,
     states: 10,
   },
-  
+
   // Form validation rules
   validation: {
     donation: {
@@ -212,7 +212,7 @@ const config = {
       password: { min: 6, required: true },
     },
   },
-  
+
   // Error messages
   errorMessages: {
     networkError: 'Network error. Please check your connection.',
@@ -222,7 +222,7 @@ const config = {
     unauthorized: 'You are not authorized to perform this action.',
     donationFailed: 'Donation processing failed. Please try again.',
   },
-  
+
   // Success messages
   successMessages: {
     donation: 'Thank you for your donation!',
@@ -252,6 +252,7 @@ export class ApiService {
         ...options,
         headers: {
           ...config.api.headers,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
           ...options.headers,
         },
         signal: controller.signal,
@@ -375,3 +376,4 @@ export class ApiService {
 export const api = new ApiService();
 
 export default config;
+

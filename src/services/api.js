@@ -64,7 +64,7 @@ const emitAuthChange = () => {
 
 const throwApiError = (error, fallbackMessage) => {
   if (!error.response) {
-    throw new Error('API server is not running. Start the backend on http://localhost:5000.');
+    throw new Error('API server is not reachable. Check https://raavanan-api.onrender.com/api.');
   }
 
   throw error.response?.data?.message ? new Error(error.response.data.message) : error;
@@ -617,3 +617,4 @@ const apiService = {
 };
 
 export default apiService;
+
