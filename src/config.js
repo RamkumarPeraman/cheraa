@@ -1,7 +1,22 @@
+const resolveApiBaseURL = () => {
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return 'http://localhost:5000/api';
+    }
+  }
+
+  return 'https://raavanan-api.onrender.com/api';
+};
+
 // API Configuration
 const config = {
   api: {
-    baseURL: process.env.REACT_APP_API_URL || 'https://raavanan-api.onrender.com/api',
+    baseURL: resolveApiBaseURL(),
     timeout: 10000,
     headers: {
       'Content-Type': 'application/json',

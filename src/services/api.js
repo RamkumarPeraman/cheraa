@@ -518,6 +518,76 @@ const apiService = {
     return response.data;
   },
 
+  getMessengerContacts: async () => {
+    const response = await api.get('/messenger/contacts');
+    return extractListData(response.data).map(normalizeEntity);
+  },
+
+  getMessengerConversations: async () => {
+    const response = await api.get('/messenger/conversations');
+    return extractListData(response.data).map(normalizeEntity);
+  },
+
+  createDirectConversation: async (participantId) => {
+    const response = await api.post('/messenger/conversations/direct', { participantId });
+    return normalizeEntity(response.data?.data || response.data);
+  },
+
+  createGroupConversation: async ({ name, participantIds }) => {
+    const response = await api.post('/messenger/conversations/group', { name, participantIds });
+    return normalizeEntity(response.data?.data || response.data);
+  },
+
+  getConversationMessages: async (conversationId) => {
+    const response = await api.get(`/messenger/conversations/${conversationId}/messages`);
+    return extractListData(response.data).map(normalizeEntity);
+  },
+
+  getConversationDetails: async (conversationId) => {
+    const response = await api.get(`/messenger/conversations/${conversationId}`);
+    return normalizeEntity(response.data?.data || response.data);
+  },
+
+  sendConversationMessage: async (conversationId, content) => {
+    const response = await api.post(`/messenger/conversations/${conversationId}/messages`, { content });
+    return normalizeEntity(response.data?.data || response.data);
+  },
+
+  updateGroupConversation: async (conversationId, payload) => {
+    const response = await api.put(`/messenger/conversations/${conversationId}/group`, payload);
+    return normalizeEntity(response.data?.data || response.data);
+  },
+
+  deleteConversation: async (conversationId) => {
+    const response = await api.delete(`/messenger/conversations/${conversationId}`);
+    return response.data;
+  },
+
+  deleteMessage: async (messageId) => {
+    const response = await api.delete(`/messenger/messages/${messageId}`);
+    return response.data;
+  },
+
+  markConversationRead: async (conversationId) => {
+    const response = await api.post(`/messenger/conversations/${conversationId}/read`);
+    return response.data;
+  },
+
+  getNotifications: async () => {
+    const response = await api.get('/messenger/notifications');
+    return extractListData(response.data).map(normalizeEntity);
+  },
+
+  markNotificationRead: async (notificationId) => {
+    const response = await api.post(`/messenger/notifications/${notificationId}/read`);
+    return response.data;
+  },
+
+  markAllNotificationsRead: async () => {
+    const response = await api.post('/messenger/notifications/read-all');
+    return response.data;
+  },
+
   getUserById: async (id) => {
     const response = await api.get(`/users/${id}`);
     return response.data;
@@ -572,6 +642,15 @@ const apiService = {
     try {
       const response = await api.get('/reports');
       return extractListData(response.data).map(normalizeEntity);
+    } catch (error) {
+      throwApiError(error);
+    }
+  },
+
+  askChatbot: async ({ message, history = [] }) => {
+    try {
+      const response = await api.post('/chatbot/ask', { message, history });
+      return response.data?.data || response.data;
     } catch (error) {
       throwApiError(error);
     }
