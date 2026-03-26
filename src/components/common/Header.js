@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   FiMenu, FiX, FiHome, FiHeart, FiCalendar, FiFileText,
-  FiUsers, FiShoppingBag, FiMail, FiPhone, FiMapPin,
+  FiUsers, FiMail, FiPhone, FiMapPin,
   FiUser, FiSettings, FiLogOut, FiChevronDown, FiBell,
   FiGrid, FiBookOpen, FiAward, FiMessageCircle, FiBarChart2
 } from 'react-icons/fi';
@@ -128,13 +128,17 @@ const Header = () => {
 
   return (
     <>
-      <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${scrolled ? 'bg-white shadow-lg' : 'bg-gradient-to-r from-primary-700 to-primary-600'}`}>
+      <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+        scrolled
+          ? 'bg-[#fffaf1]/95 shadow-lg shadow-ink-950/5 backdrop-blur-xl'
+          : 'bg-[#fffaf1]/72 backdrop-blur-xl'
+      }`}>
         <div className="container-custom">
           <div className="flex items-center justify-between h-14 md:h-18">
             <div className="flex items-center">
               <button
                 onClick={toggleSidebar}
-                className={`p-2 rounded-lg mr-4 transition-colors ${scrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-primary-500'}`}
+                className="mr-4 rounded-lg p-2 text-ink-800 transition-colors hover:bg-white/70"
                 aria-label="Toggle menu"
               >
                 {isSidebarOpen ? <FiX size={24} /> : <FiMenu size={24} />}
@@ -144,7 +148,7 @@ const Header = () => {
                 <div className="w-8 h-8 md:w-10 md:h-10 bg-white rounded-full flex items-center justify-center">
                   <img src={ravanaLogo} alt="" />
                 </div>
-                <span className={`font-bold text-sm md:text-xl ${scrolled ? 'text-gray-900' : 'text-white'}`}>
+                <span className="font-bold text-sm text-ink-950 md:text-xl">
                   Raavana Thalaigal
                 </span>
               </Link>
@@ -153,7 +157,7 @@ const Header = () => {
             <div className="flex items-center space-x-2 md:space-x-4">
               <Link
                 to="/donate"
-                className={`px-3 md:px-4 py-1.5 md:py-2 rounded-lg font-semibold transition-all ${scrolled ? 'bg-primary-600 text-white hover:bg-primary-700' : 'bg-white text-primary-600 hover:bg-gray-100'}`}
+                className="rounded-full bg-primary-700 px-3 py-1.5 font-semibold text-white transition-all hover:bg-primary-800 md:px-4 md:py-2"
               >
                 <span className="hidden md:inline">Donate Now</span>
                 <FiHeart className="md:hidden" size={20} />
@@ -163,12 +167,12 @@ const Header = () => {
                 <div className="relative">
                   <button
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                    className={`flex items-center space-x-2 p-1.5 md:p-2 rounded-lg transition-colors ${scrolled ? 'hover:bg-gray-100' : 'hover:bg-primary-500'}`}
+                    className="flex items-center space-x-2 rounded-lg p-1.5 transition-colors hover:bg-white/70 md:p-2"
                   >
                     <div className="w-8 h-8 bg-primary-200 rounded-full flex items-center justify-center">
                       <span className="text-primary-700 font-semibold">{user?.name?.charAt(0) || 'U'}</span>
                     </div>
-                    <FiChevronDown className={scrolled ? 'text-gray-700' : 'text-white'} size={16} />
+                    <FiChevronDown className="text-ink-700" size={16} />
                   </button>
 
                   {isUserMenuOpen && (
@@ -193,7 +197,7 @@ const Header = () => {
                   )}
                 </div>
               ) : (
-                <Link to="/login" className={`flex items-center space-x-1 px-3 py-1.5 rounded-lg transition-colors ${scrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-primary-500'}`}>
+                <Link to="/login" className="flex items-center space-x-1 rounded-lg px-3 py-1.5 text-ink-800 transition-colors hover:bg-white/70">
                   <FiUser size={18} />
                   <span className="hidden md:inline">Login</span>
                 </Link>
@@ -207,7 +211,7 @@ const Header = () => {
 
       <aside className={`fixed top-0 left-0 h-full w-72 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
-          <div className="p-6 bg-gradient-to-r from-primary-600 to-primary-700">
+          <div className="bg-[#201814] p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
@@ -215,7 +219,7 @@ const Header = () => {
                 </div>
                 <div>
                   <h2 className="text-white font-bold">Raavana Thalaigal</h2>
-                  <p className="text-primary-100 text-sm">Empowering Communities</p>
+                  <p className="text-sm text-white/65">Empowering Communities</p>
                 </div>
               </div>
               <button onClick={closeSidebar} className="text-white hover:bg-primary-500 p-1 rounded"><FiX size={20} /></button>

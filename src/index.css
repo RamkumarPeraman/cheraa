@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,7 +10,29 @@
   }
   
   body {
-    @apply antialiased text-gray-800;
+    @apply antialiased text-ink-900 bg-stone-50;
+    background-image:
+      radial-gradient(circle at top left, rgba(37, 154, 146, 0.08), transparent 28%),
+      radial-gradient(circle at top right, rgba(242, 139, 7, 0.08), transparent 24%);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display;
+  }
+}
+
+@keyframes textRevealUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -18,22 +42,49 @@
   }
   
   .btn-primary {
-    @apply bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold 
-           hover:bg-primary-700 transition duration-300 ease-in-out
+    @apply inline-flex items-center justify-center rounded-full bg-primary-600 px-6 py-3
+           font-semibold text-white shadow-lg shadow-primary-900/15 transition duration-300
+           ease-in-out hover:-translate-y-0.5 hover:bg-primary-700
            focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
   }
   
   .btn-secondary {
-    @apply bg-white text-primary-600 border-2 border-primary-600 px-6 py-3 
-           rounded-lg font-semibold hover:bg-primary-50 transition duration-300 
-           ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500;
+    @apply inline-flex items-center justify-center rounded-full border border-primary-200
+           bg-white/90 px-6 py-3 font-semibold text-primary-700 backdrop-blur-sm
+           transition duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-primary-50
+           focus:outline-none focus:ring-2 focus:ring-primary-500;
   }
   
   .section-title {
-    @apply text-3xl md:text-4xl font-bold text-gray-900 mb-4;
+    @apply mb-4 text-3xl font-bold text-ink-950 md:text-4xl;
   }
   
   .section-subtitle {
-    @apply text-xl text-gray-600 mb-8;
+    @apply mb-8 text-lg text-ink-600 md:text-xl;
+  }
+
+  .glass-panel {
+    @apply rounded-[2rem] border border-white/60 bg-white/75 shadow-[0_24px_80px_-32px_rgba(20,26,32,0.35)] backdrop-blur-xl;
+  }
+
+  .text-reveal {
+    opacity: 0;
+    animation: textRevealUp 0.8s ease-out forwards;
+  }
+
+  .text-reveal-delay-1 {
+    animation-delay: 0.12s;
+  }
+
+  .text-reveal-delay-2 {
+    animation-delay: 0.24s;
+  }
+
+  .text-reveal-delay-3 {
+    animation-delay: 0.36s;
+  }
+
+  .text-reveal-delay-4 {
+    animation-delay: 0.48s;
   }
 }

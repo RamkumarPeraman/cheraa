@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FiUsers, FiHeart, FiBriefcase, FiMapPin } from 'react-icons/fi';
+import { FiBookOpen, FiHeart, FiMapPin, FiUsers } from 'react-icons/fi';
 import config from '../../config';
 
 const ImpactMetrics = () => {
@@ -12,7 +12,7 @@ const ImpactMetrics = () => {
 
   useEffect(() => {
     const targets = config.impactMetrics;
-    const duration = 2000; // 2 seconds
+    const duration = 1800;
     const steps = 60;
     const increment = duration / steps;
     
@@ -36,27 +36,45 @@ const ImpactMetrics = () => {
   }, []);
 
   const metrics = [
-    { icon: FiUsers, value: counts.lives, label: 'Lives Impacted', suffix: '+' },
-    { icon: FiHeart, value: counts.volunteers, label: 'Active Volunteers', suffix: '+' },
-    { icon: FiBriefcase, value: counts.projects, label: 'Projects Completed', suffix: '+' },
-    { icon: FiMapPin, value: counts.states, label: 'States Reached', suffix: '' },
+    { icon: FiUsers, value: counts.lives, label: 'Lives reached', suffix: '+' },
+    { icon: FiHeart, value: counts.volunteers, label: 'People backing the mission', suffix: '+' },
+    { icon: FiBookOpen, value: counts.projects, label: 'Programs delivered', suffix: '+' },
+    { icon: FiMapPin, value: counts.states, label: 'Regions connected', suffix: '' },
   ];
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="bg-[#efe5d4] py-16">
       <div className="container-custom">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {metrics.map((metric, index) => (
-            <div key={index} className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-4">
-                <metric.icon className="w-8 h-8 text-primary-600" />
-              </div>
-              <div className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                {metric.value.toLocaleString()}{metric.suffix}
-              </div>
-              <div className="text-gray-600">{metric.label}</div>
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center">
+          <div>
+            <div className="text-reveal text-xs font-semibold uppercase tracking-[0.22em] text-primary-700">
+              Why this layout works
             </div>
-          ))}
+            <h2 className="text-reveal text-reveal-delay-1 mt-4 text-3xl font-bold text-ink-950 md:text-4xl">
+              Trust is built through clarity, not decoration.
+            </h2>
+            <p className="text-reveal text-reveal-delay-2 mt-5 max-w-xl text-base leading-7 text-ink-700">
+              The homepage now reads more like a mission-driven institution: measurable impact,
+              a clear point of view, and visible pathways for donors, volunteers, and families.
+            </p>
+          </div>
+
+          <div className="text-reveal text-reveal-delay-3 grid gap-4 sm:grid-cols-2">
+            {metrics.map((metric) => (
+              <div
+                key={metric.label}
+                className="rounded-[1.75rem] border border-white/45 bg-white/72 p-6 shadow-[0_20px_50px_-38px_rgba(20,26,32,0.18)]"
+              >
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-100">
+                  <metric.icon className="h-7 w-7 text-primary-700" />
+                </div>
+                <div className="mt-5 text-3xl font-bold text-ink-950">
+                  {metric.value.toLocaleString()}{metric.suffix}
+                </div>
+                <div className="mt-2 text-sm leading-5 text-ink-600">{metric.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

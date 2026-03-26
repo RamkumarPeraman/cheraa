@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 // Components
 import Header from './components/common/Header';
-import Footer from './components/common/Footer';
+import Footer from './components/common/FoundationFooter';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Pages for raavanan

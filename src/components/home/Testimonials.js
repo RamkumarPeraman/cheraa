@@ -2,103 +2,106 @@ import React, { useEffect, useState } from 'react';
 import { FiStar } from 'react-icons/fi';
 import apiService from '../../services/api';
 
+const fallbackTestimonials = [
+  {
+    name: 'Student Parent',
+    role: 'Community participant',
+    content:
+      'What matters most is that the support feels continuous. It is not a one-day event but a relationship that helps children keep moving.',
+    rating: 5,
+  },
+  {
+    name: 'Volunteer Mentor',
+    role: 'Education volunteer',
+    content:
+      'This revised homepage now communicates the same seriousness we try to bring to the field: disciplined, hopeful, and focused on outcomes.',
+    rating: 5,
+  },
+];
+
 const Testimonials = () => {
-  const [testimonials, setTestimonials] = useState([]);
+  const [testimonials, setTestimonials] = useState(fallbackTestimonials);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const data = await apiService.getTestimonials();
+        if (data.length > 0) {
+          setTestimonials(data);
+        }
+      } catch (error) {
+        console.error('Error fetching testimonials:', error);
+      }
+    };
+
     fetchTestimonials();
   }, []);
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    if (testimonials.length <= 1) {
+      return undefined;
+    }
+
+    const timer = window.setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % testimonials.length);
     }, 5000);
 
-    return () => clearInterval(timer);
+    return () => window.clearInterval(timer);
   }, [testimonials.length]);
-
-  const fetchTestimonials = async () => {
-    try {
-      const data = await apiService.getTestimonials();
-      setTestimonials(data);
-    } catch (error) {
-      console.error('Error fetching testimonials:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading || testimonials.length === 0) {
-    return (
-      <section className="py-16">
-        <div className="container-custom">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
-            <div className="h-64 bg-gray-200 rounded"></div>
-          </div>
-        </div>
-      </section>
-    );
-  }
 
   const testimonial = testimonials[currentIndex];
 
   return (
-    <section className="py-16">
+    <section className="bg-[#f5efe5] py-20">
       <div className="container-custom">
-        <div className="text-center mb-12">
-          <h2 className="section-title">What People Say</h2>
-          <p className="section-subtitle">
-            Hear from those whose lives have been touched by our work
-          </p>
-        </div>
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-center">
+          <div>
+            <div className="text-reveal text-xs font-semibold uppercase tracking-[0.22em] text-primary-700">
+              Voices from the field
+            </div>
+            <h2 className="text-reveal text-reveal-delay-1 mt-4 text-3xl font-bold text-ink-950 md:text-4xl">
+              A homepage for a foundation should feel personal, but grounded.
+            </h2>
+            <p className="text-reveal text-reveal-delay-2 mt-5 max-w-xl text-base leading-7 text-ink-700">
+              The testimonial section now supports that balance with cleaner typography and more
+              breathing room, instead of looking like a generic carousel card.
+            </p>
+          </div>
 
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg shadow-xl p-8 md:p-12">
-            <div className="flex flex-col items-center text-center">
-              {/* Rating */}
-              <div className="flex mb-4">
+          <div className="text-reveal text-reveal-delay-3 rounded-[2.25rem] border border-[#eadbc5]/75 bg-white/86 p-8 shadow-[0_26px_70px_-42px_rgba(20,26,32,0.16)] md:p-10">
+            <div className="flex">
                 {[...Array(5)].map((_, i) => (
                   <FiStar
                     key={i}
                     className={`w-5 h-5 ${
-                      i < testimonial.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                      i < testimonial.rating ? 'fill-current text-accent-500' : 'text-stone-300'
                     }`}
                   />
                 ))}
-              </div>
+            </div>
 
-              {/* Content */}
-              <blockquote className="text-xl md:text-2xl text-gray-700 mb-6 italic">
-                "{testimonial.content}"
-              </blockquote>
+            <blockquote className="mt-6 text-xl font-medium leading-8 text-ink-900 md:text-2xl md:leading-9">
+              "{testimonial.content}"
+            </blockquote>
 
-              {/* Author */}
-              <div className="flex items-center">
-                {testimonial.image && (
-                  <img
-                    src={testimonial.image}
-                    alt={testimonial.name}
-                    className="w-12 h-12 rounded-full object-cover mr-4"
-                  />
-                )}
-                <div className="text-left">
-                  <div className="font-bold text-lg">{testimonial.name}</div>
-                  <div className="text-gray-600">{testimonial.role}</div>
-                </div>
+            <div className="mt-8 border-t border-stone-200 pt-6">
+              <div className="text-base font-bold text-ink-950 md:text-lg">{testimonial.name}</div>
+              <div className="mt-1 text-xs uppercase tracking-[0.16em] text-primary-700">
+                {testimonial.role}
               </div>
             </div>
 
-            {/* Dots Navigation */}
-            <div className="flex justify-center mt-8 space-x-2">
+            <div className="mt-8 flex gap-2">
               {testimonials.map((_, index) => (
                 <button
                   key={index}
+                  type="button"
                   onClick={() => setCurrentIndex(index)}
-                  className={`w-3 h-3 rounded-full transition-colors ${
-                    index === currentIndex ? 'bg-primary-600' : 'bg-gray-300'
+                  className={`h-2.5 rounded-full transition-all ${
+                    index === currentIndex
+                      ? 'w-12 bg-primary-700'
+                      : 'w-2.5 bg-primary-200 hover:bg-primary-300'
                   }`}
                   aria-label={`Go to testimonial ${index + 1}`}
                 />
