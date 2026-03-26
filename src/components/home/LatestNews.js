@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiCalendar, FiUser, FiArrowRight } from 'react-icons/fi';
+import {
+  FiArrowRight,
+  FiCalendar,
+  FiChevronLeft,
+  FiChevronRight,
+  FiUser,
+} from 'react-icons/fi';
 import apiService from '../../services/api';
 
 const fallbackStories = [
@@ -35,6 +41,7 @@ const fallbackStories = [
 
 const LatestNews = () => {
   const [blogs, setBlogs] = useState(fallbackStories);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -51,6 +58,18 @@ const LatestNews = () => {
     fetchBlogs();
   }, []);
 
+  useEffect(() => {
+    if (blogs.length <= 1) {
+      return undefined;
+    }
+
+    const timer = window.setInterval(() => {
+      setActiveIndex((current) => (current + 1) % blogs.length);
+    }, 5000);
+
+    return () => window.clearInterval(timer);
+  }, [blogs.length]);
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -58,6 +77,13 @@ const LatestNews = () => {
       day: 'numeric',
     });
   };
+
+  const activeStory = blogs[activeIndex] || blogs[0];
+
+  const goToPrevious = () =>
+    setActiveIndex((current) => (current - 1 + blogs.length) % blogs.length);
+
+  const goToNext = () => setActiveIndex((current) => (current + 1) % blogs.length);
 
   return (
     <section className="bg-primary-950 py-20 text-white">
@@ -81,62 +107,119 @@ const LatestNews = () => {
           </Link>
         </div>
 
-        <div className="text-reveal text-reveal-delay-4 mt-12 grid grid-cols-1 gap-8 lg:grid-cols-3">
-          {blogs.map((blog, index) => (
-            <article
-              key={blog.id}
-              className={`rounded-[2rem] border p-7 shadow-[0_24px_60px_-36px_rgba(0,0,0,0.28)] ${
-                index === 0
-                  ? 'border-accent-400/20 bg-white/90 text-ink-950 lg:col-span-2'
-                  : 'border-white/8 bg-white/4 text-white'
-              }`}
-            >
-              <div className="flex flex-wrap items-center gap-3 text-sm">
-                <span
-                  className={`rounded-full px-3 py-1 font-semibold uppercase tracking-[0.16em] ${
-                    index === 0 ? 'bg-accent-100/72 text-accent-800' : 'bg-white/8 text-accent-300/85'
-                  }`}
-                >
-                  {blog.category}
-                </span>
-                <div className={`${index === 0 ? 'text-ink-500/90' : 'text-white/50'}`}>
-                  {formatDate(blog.date)}
+        <div className="text-reveal text-reveal-delay-4 mt-12 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.65fr)]">
+          <article className="overflow-hidden rounded-[2rem] border border-accent-400/20 bg-white/90 text-ink-950 shadow-[0_24px_60px_-36px_rgba(0,0,0,0.28)]">
+            <div className="bg-gradient-to-br from-accent-100/70 via-white to-primary-50/60 p-7 md:p-9">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex flex-wrap items-center gap-3 text-sm">
+                  <span className="rounded-full bg-accent-100/72 px-3 py-1 font-semibold uppercase tracking-[0.16em] text-accent-800">
+                    {activeStory.category}
+                  </span>
+                  <div className="text-ink-500/90">{formatDate(activeStory.date)}</div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={goToPrevious}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-primary-200/70 bg-white/75 text-primary-800 transition hover:bg-white"
+                    aria-label="Previous news"
+                  >
+                    <FiChevronLeft className="h-5 w-5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={goToNext}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-primary-200/70 bg-white/75 text-primary-800 transition hover:bg-white"
+                    aria-label="Next news"
+                  >
+                    <FiChevronRight className="h-5 w-5" />
+                  </button>
                 </div>
               </div>
 
-              <h3 className={`mt-6 font-bold ${index === 0 ? 'text-3xl md:text-4xl' : 'text-xl md:text-2xl'}`}>
-                {blog.title}
-              </h3>
-              <p className={`mt-4 text-sm leading-6 md:text-base md:leading-7 ${index === 0 ? 'text-ink-600/90' : 'text-white/60'}`}>
-                {blog.excerpt}
-              </p>
+              <div className="relative mt-8 min-h-[15rem] md:min-h-[17rem]">
+                {blogs.map((blog, index) => (
+                  <div
+                    key={blog.id}
+                    className={`absolute inset-0 transition-all duration-500 ${
+                      index === activeIndex
+                        ? 'translate-y-0 opacity-100'
+                        : 'pointer-events-none translate-y-4 opacity-0'
+                    }`}
+                  >
+                    <h3 className="max-w-3xl text-3xl font-bold md:text-4xl">
+                      {blog.title}
+                    </h3>
+                    <p className="mt-4 max-w-2xl text-sm leading-6 text-ink-600/90 md:text-base md:leading-7">
+                      {blog.excerpt}
+                    </p>
 
-              <div
-                className={`mt-8 flex flex-wrap items-center gap-4 text-sm ${
-                  index === 0 ? 'text-ink-500/90' : 'text-white/50'
-                }`}
-              >
-                <span className="inline-flex items-center">
-                  <FiCalendar className="mr-2" />
-                  {formatDate(blog.date)}
-                </span>
-                <span className="inline-flex items-center">
-                  <FiUser className="mr-2" />
-                  {blog.author}
-                </span>
+                    <div className="mt-8 flex flex-wrap items-center gap-4 text-sm text-ink-500/90">
+                      <span className="inline-flex items-center">
+                        <FiCalendar className="mr-2" />
+                        {formatDate(blog.date)}
+                      </span>
+                      <span className="inline-flex items-center">
+                        <FiUser className="mr-2" />
+                        {blog.author}
+                      </span>
+                    </div>
+
+                    <Link
+                      to="/blogs"
+                      className="mt-8 inline-flex items-center font-semibold text-primary-700"
+                    >
+                      Read the full update
+                      <FiArrowRight className="ml-2" />
+                    </Link>
+                  </div>
+                ))}
               </div>
+            </div>
 
-              <Link
-                to="/blogs"
-                className={`mt-8 inline-flex items-center font-semibold ${
-                  index === 0 ? 'text-primary-700' : 'text-accent-300'
+            <div className="border-t border-stone-200/80 bg-white/68 px-7 py-5 md:px-9">
+              <div className="flex flex-wrap items-center gap-2">
+                {blogs.map((blog, index) => (
+                  <button
+                    key={`indicator-${blog.id}`}
+                    type="button"
+                    onClick={() => setActiveIndex(index)}
+                    className={`transition-all ${
+                      index === activeIndex
+                        ? 'h-2.5 w-12 rounded-full bg-primary-700'
+                        : 'h-2.5 w-2.5 rounded-full bg-primary-200 hover:bg-primary-300'
+                    }`}
+                    aria-label={`Show news ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+          </article>
+
+          <div className="space-y-4">
+            {blogs.map((blog, index) => (
+              <button
+                key={blog.id}
+                type="button"
+                onClick={() => setActiveIndex(index)}
+                className={`block w-full rounded-[1.5rem] border p-5 text-left transition ${
+                  index === activeIndex
+                    ? 'border-accent-400/18 bg-white/12 shadow-[0_18px_40px_-32px_rgba(0,0,0,0.3)]'
+                    : 'border-white/8 bg-white/4 hover:bg-white/7'
                 }`}
               >
-                Read the full update
-                <FiArrowRight className="ml-2" />
-              </Link>
-            </article>
-          ))}
+                <div className="flex items-center justify-between gap-3 text-xs uppercase tracking-[0.16em]">
+                  <span className={index === activeIndex ? 'text-accent-300' : 'text-white/55'}>
+                    {blog.category}
+                  </span>
+                  <span className="text-white/40">{formatDate(blog.date)}</span>
+                </div>
+                <h3 className="mt-3 text-lg font-semibold text-white">{blog.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-white/58">{blog.excerpt}</p>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </section>

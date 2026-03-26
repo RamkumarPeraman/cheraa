@@ -116,14 +116,14 @@ const FoundationHero = () => {
                 ))}
               </div>
 
-              <div className="text-reveal text-reveal-delay-3 mt-6 rounded-[1.5rem] bg-primary-900/86 px-6 py-6 text-white">
+              <div className="text-reveal text-reveal-delay-3 mt-6 rounded-[1.5rem] border border-primary-800/40 bg-primary-900 px-6 py-6 text-white shadow-[0_18px_40px_-28px_rgba(8,38,40,0.55)]">
                 <div className="flex items-center gap-3">
                   <FiHeart className="h-5 w-5 text-accent-300" />
-                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-white/58">
+                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-white/78">
                     Community note
                   </span>
                 </div>
-                <p className="mt-3 text-base leading-7 text-white/74">
+                <p className="mt-3 text-base leading-7 text-white/94">
                   "Every contribution should feel visible: one person, one family, one clear
                   step forward."
                 </p>
