@@ -31,6 +31,26 @@ const normalizeRole = (role) => {
 
 const UserGroupPageApi = () => {
   const [currentUser] = useState(() => JSON.parse(localStorage.getItem('user') || 'null'));
+  const [availableRoles, setAvailableRoles] = useState(roles); // default to hardcoded
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const response = await apiService.getRoles();
+        const rolesData = response?.data || response || [];
+        if (Array.isArray(rolesData) && rolesData.length > 0) {
+          const rolesMap = {};
+          rolesData.forEach(r => {
+            rolesMap[r.name.toLowerCase()] = { name: r.name.replace(/_/g, ' ') };
+          });
+          setAvailableRoles(rolesMap);
+        }
+      } catch (error) {
+        console.error('Failed to fetch roles:', error);
+      }
+    };
+    fetchRoles();
+  }, []);
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({ total: 0, active: 0, leadership: 0, volunteers: 0, members: 0 });
   const [loading, setLoading] = useState(true);
@@ -133,7 +153,7 @@ const UserGroupPageApi = () => {
                   <div className="text-sm text-gray-500">{user.email}</div>
                 </div>
               </div>
-              <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">{roles[user.role]?.name || user.role}</span>
+              <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">{availableRoles[user.role]?.name || user.role}</span>
             </div>
 
             <div className="space-y-2 text-sm text-gray-600">
@@ -168,7 +188,7 @@ const UserGroupPageApi = () => {
           {users.map((user) => (
             <tr key={user.id || user._id}>
               <td className="px-6 py-4"><div className="font-medium">{user.name}</div><div className="text-sm text-gray-500">{user.email}</div></td>
-              <td className="px-6 py-4">{roles[user.role]?.name || user.role}</td>
+              <td className="px-6 py-4">{availableRoles[user.role]?.name || user.role}</td>
               <td className="px-6 py-4">{user.department || '-'}</td>
               <td className="px-6 py-4"><span className={`px-2 py-1 rounded-full text-xs ${user.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>{user.status}</span></td>
               <td className="px-6 py-4">{user.phone || '-'}</td>
@@ -213,7 +233,7 @@ const UserGroupPageApi = () => {
             </div>
             <select value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg">
               <option value="all">All Roles</option>
-              {Object.entries(roles).map(([key, role]) => <option key={key} value={key}>{role.name}</option>)}
+              {Object.entries(availableRoles).map(([key, role]) => <option key={key} value={key}>{role.name}</option>)}
             </select>
             <select value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg">
               {departments.map((department) => <option key={department} value={department}>{department === 'all' ? 'All Departments' : department}</option>)}

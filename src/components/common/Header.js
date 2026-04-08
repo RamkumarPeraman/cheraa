@@ -4,7 +4,7 @@ import {
   FiMenu, FiX, FiHome, FiHeart, FiCalendar, FiFileText,
   FiUsers, FiMail, FiPhone, FiMapPin,
   FiUser, FiSettings, FiLogOut, FiChevronDown, FiBell,
-  FiGrid, FiBookOpen, FiAward, FiMessageCircle, FiBarChart2
+  FiGrid, FiBookOpen, FiAward, FiMessageCircle, FiBarChart2, FiShield
 } from 'react-icons/fi';
 import { FaUserFriends } from 'react-icons/fa';
 import { toast } from 'react-toastify';
@@ -115,6 +115,7 @@ const Header = () => {
 
   if (isAdmin) {
     sidebarNavItems.push({ name: 'Admin Dashboard', path: '/admin', icon: FiBarChart2 });
+    sidebarNavItems.push({ name: 'Roles Management', path: '/roles', icon: FiShield });
   }
 
   const userMenuItems = isLoggedIn ? [
@@ -188,6 +189,7 @@ const Header = () => {
                           <div className="border-t border-gray-100 my-1"></div>
                           <Link to="/admin" className="flex items-center px-4 py-2 text-purple-600 hover:bg-purple-50" onClick={() => setIsUserMenuOpen(false)}><FiBarChart2 className="mr-2" />Admin Dashboard</Link>
                           <Link to="/my-groups" className="flex items-center px-4 py-2 text-purple-600 hover:bg-purple-50" onClick={() => setIsUserMenuOpen(false)}><FiUsers className="mr-2" />User Management</Link>
+                          <Link to="/roles" className="flex items-center px-4 py-2 text-purple-600 hover:bg-purple-50" onClick={() => setIsUserMenuOpen(false)}><FiShield className="mr-2" />Roles Management</Link>
                         </>
                       )}
 

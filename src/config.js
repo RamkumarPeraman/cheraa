@@ -6,7 +6,9 @@ const resolveApiBaseURL = () => {
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return 'http://localhost:5000/api';
+        //  return 'http://localhost:5000/api';
+        return 'https://raavanan-api.onrender.com/api';
+
     }
   }
 

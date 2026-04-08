@@ -6,6 +6,7 @@ import {
   FiSmartphone, FiMessageSquare
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
+import apiService from '../services/api';
 
 const ForgotPasswordPage = () => {
   const navigate = useNavigate();
@@ -49,15 +50,12 @@ const ForgotPasswordPage = () => {
     setLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mock success
+      await apiService.forgotPassword(email);
       toast.success('Verification code sent to your email!');
       setStep(2);
       startTimer();
     } catch (error) {
-      toast.error('Email not found. Please try again.');
+      toast.error(error.message || 'Email not found. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -76,18 +74,11 @@ const ForgotPasswordPage = () => {
     setLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mock OTP verification (in real app, verify with backend)
-      if (otpValue === '123456') {
-        toast.success('OTP verified successfully!');
-        setStep(3);
-      } else {
-        toast.error('Invalid OTP. Please try again.');
-      }
+      await apiService.verifyOtp(email, otpValue);
+      toast.success('OTP verified successfully!');
+      setStep(3);
     } catch (error) {
-      toast.error('OTP verification failed');
+      toast.error(error.message || 'Invalid OTP. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -121,17 +112,13 @@ const ForgotPasswordPage = () => {
     setLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await apiService.resetPassword(email, passwordData.newPassword);
       toast.success('Password reset successfully!');
-      
-      // Redirect to login after 2 seconds
       setTimeout(() => {
         navigate('/login');
       }, 2000);
     } catch (error) {
-      toast.error('Failed to reset password');
+      toast.error(error.message || 'Failed to reset password');
     } finally {
       setLoading(false);
     }
@@ -245,11 +232,11 @@ const ForgotPasswordPage = () => {
 
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await apiService.forgotPassword(email);
       toast.success('New OTP sent to your email');
       startTimer();
     } catch (error) {
-      toast.error('Failed to resend OTP');
+      toast.error(error.message || 'Failed to resend OTP');
     } finally {
       setLoading(false);
     }
@@ -388,13 +375,6 @@ const ForgotPasswordPage = () => {
                     )}
                   </div>
 
-                  {/* Test OTP Hint */}
-                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                    <p className="text-xs text-blue-800 flex items-center">
-                      <FiAlertCircle className="mr-2 flex-shrink-0" />
-                      For testing, use OTP: 123456
-                    </p>
-                  </div>
                 </div>
 
                 <button

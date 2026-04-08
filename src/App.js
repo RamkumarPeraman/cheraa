@@ -29,6 +29,7 @@ import NotificationsInboxPage from './pages/NotificationsInboxPage';
 import MessengerPage from './pages/MessengerPage';
 import MyImpactPage from './pages/MyImpactPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import RolesManagementPage from './pages/RolesManagementPage';
 
 function AppLayout() {
   const location = useLocation();
@@ -88,6 +89,11 @@ function AppLayout() {
           <Route path="/admin" element={
             <ProtectedRoute requiredRole={['ADMIN', 'SUPER_ADMIN']}>
               <AdminDashboardPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/roles" element={
+            <ProtectedRoute requiredRole={['ADMIN', 'SUPER_ADMIN']}>
+              <RolesManagementPage />
             </ProtectedRoute>
           } />
         </Routes>

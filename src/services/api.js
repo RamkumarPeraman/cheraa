@@ -64,18 +64,21 @@ const emitAuthChange = () => {
 
 const throwApiError = (error, fallbackMessage) => {
   if (!error.response) {
-    throw new Error('API server is not reachable. Check https://raavanan-api.onrender.com/api.');
+    throw new Error('API server is not reachable. Check ' + api.defaults.baseURL);
   }
 
   throw error.response?.data?.message ? new Error(error.response.data.message) : error;
 };
 
 const persistAuth = (payload, fallbackUserType = 'user') => {
-  if (payload?.token) {
-    localStorage.setItem('authToken', payload.token);
+  // Unwrap if response is wrapped in {success, data}
+  const data = payload?.data && (payload?.data?.token || payload?.data?.user) ? payload.data : payload;
+
+  if (data?.token) {
+    localStorage.setItem('authToken', data.token);
   }
 
-  const user = extractUser(payload);
+  const user = data?.user || extractUser(payload);
   if (user) {
     const normalizedUser = {
       ...user,
@@ -484,6 +487,33 @@ const apiService = {
     }
   },
 
+  forgotPassword: async (email) => {
+    try {
+        const response = await api.post('/auth/forgot-password', { email });
+        return response.data;
+    } catch (error) {
+        throwApiError(error);
+    }
+  },
+
+  verifyOtp: async (email, otp) => {
+    try {
+        const response = await api.post('/auth/verify-otp', { email, otp });
+        return response.data;
+    } catch (error) {
+        throwApiError(error);
+    }
+  },
+
+  resetPassword: async (email, newPassword) => {
+    try {
+        const response = await api.post('/auth/reset-password', { email, newPassword });
+        return response.data;
+    } catch (error) {
+        throwApiError(error);
+    }
+  },
+
   logout: () => {
     clearAuth();
   },
@@ -616,6 +646,33 @@ const apiService = {
   deleteUser: async (id) => {
     const response = await api.delete(`/users/${id}`);
     return response.data;
+  },
+
+  getRoles: async () => {
+    try {
+        const response = await api.get('/roles');
+        return response.data;
+    } catch (error) {
+        throwApiError(error);
+    }
+  },
+
+  createRole: async (roleData) => {
+    try {
+        const response = await api.post('/roles', roleData);
+        return response.data;
+    } catch (error) {
+        throwApiError(error);
+    }
+  },
+
+  deleteRole: async (id) => {
+    try {
+        const response = await api.delete('/roles/' + id);
+        return response.data;
+    } catch (error) {
+        throwApiError(error);
+    }
   },
 
   getMerchandise: async () => {

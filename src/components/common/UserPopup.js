@@ -6,6 +6,7 @@ import {
 } from 'react-icons/fi';
 import { FaUserShield, FaUserCog, FaUserTie, FaUserGraduate } from 'react-icons/fa';
 import { processImageFile } from '../../utils/imageUpload';
+import apiService from '../../services/api';
 
 const UserPopup = ({ mode, user, onClose, onSave, currentUser }) => {
   const [formData, setFormData] = useState({
@@ -43,6 +44,20 @@ const UserPopup = ({ mode, user, onClose, onSave, currentUser }) => {
   const [activeTab, setActiveTab] = useState('basic');
   const [previewUrl, setPreviewUrl] = useState(null);
   const [imageError, setImageError] = useState('');
+  const [availableRoles, setAvailableRoles] = useState([]);
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const response = await apiService.getRoles();
+        const rolesData = response?.data || response || [];
+        setAvailableRoles(Array.isArray(rolesData) ? rolesData : []);
+      } catch (error) {
+        console.error('Failed to fetch roles:', error);
+      }
+    };
+    fetchRoles();
+  }, []);
 
   // Role definitions
   const roles = {
@@ -397,8 +412,10 @@ const UserPopup = ({ mode, user, onClose, onSave, currentUser }) => {
                         onChange={handleInputChange}
                         className="w-full p-2 border border-gray-300 rounded-lg focus:border-primary-500 focus:outline-none"
                       >
-                        {Object.entries(roles).map(([key, role]) => (
-                          <option key={key} value={key}>{role.name}</option>
+                        {availableRoles.map((r) => (
+                          <option key={r.id} value={r.name.toLowerCase()}>
+                            {r.name.replace(/_/g, ' ')}
+                          </option>
                         ))}
                       </select>
                     )}
