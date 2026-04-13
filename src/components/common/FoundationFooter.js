@@ -7,9 +7,9 @@ import {
   FiMail,
   FiMapPin,
   FiPhone,
-  FiTwitter,
   FiYoutube,
 } from 'react-icons/fi';
+import { FaWhatsapp } from 'react-icons/fa';
 import ravanaLogo from '../../asset/image/ravanan.png';
 import config from '../../config';
 
@@ -24,10 +24,10 @@ const FoundationFooter = () => {
             <div>
               <div className="flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white p-2">
-                  <img src={ravanaLogo} alt="Raavana Thalaigal logo" />
+                  <img src={ravanaLogo} alt="Raavana Thalaigal trust logo" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold md:text-2xl">Raavana Thalaigal</h3>
+                  <h3 className="text-xl font-bold md:text-2xl">Raavana Thalaigal trust Trust</h3>
                   <p className="text-xs uppercase tracking-[0.16em] text-white/55">
                     Community impact platform
                   </p>
@@ -35,14 +35,14 @@ const FoundationFooter = () => {
               </div>
 
               <p className="mt-6 max-w-md text-sm leading-7 text-white/70 md:text-base">
-                A warmer foundation-style footer to match the homepage redesign: clearer trust
-                signals, better reading rhythm, and stronger emphasis on mission and contact.
+                Mission: To root our strength in every corner of Tamil Nadu, building branches
+                of action, brotherhood, and brave youth ready to serve and lead.
               </p>
 
               <div className="mt-6 flex gap-3">
                 {[
                   { href: config.socialMedia.facebook, icon: FiFacebook, label: 'Facebook' },
-                  { href: config.socialMedia.twitter, icon: FiTwitter, label: 'Twitter' },
+                  { href: config.socialMedia.whatsapp, icon: FaWhatsapp, label: 'WhatsApp' },
                   { href: config.socialMedia.instagram, icon: FiInstagram, label: 'Instagram' },
                   { href: config.socialMedia.linkedin, icon: FiLinkedin, label: 'LinkedIn' },
                   { href: config.socialMedia.youtube, icon: FiYoutube, label: 'YouTube' },
@@ -91,18 +91,18 @@ const FoundationFooter = () => {
               <div className="mt-5 space-y-4 text-white/70">
                 <div className="flex items-start gap-3">
                   <FiMapPin className="mt-1 h-5 w-5 text-accent-300" />
-                  <span>123 NGO Street, Chennai, Tamil Nadu, India - 600001</span>
+                  <span>212, 1st Floor, Ramalingam Road East, R.S. Puram, Coimbatore – 641002, Tamil Nadu, India.</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <FiPhone className="h-5 w-5 text-accent-300" />
-                  <a href="tel:+919876543210" className="transition hover:text-white">
-                    +91 98765 43210
+                  <a href="tel:+919487814418" className="transition hover:text-white">
+                    +91 94878 14418
                   </a>
                 </div>
                 <div className="flex items-center gap-3">
                   <FiMail className="h-5 w-5 text-accent-300" />
-                  <a href="mailto:info@raavanathalaigal.org" className="transition hover:text-white">
-                    info@raavanathalaigal.org
+                  <a href="mailto:enquiry.raavanathalaigal@gmail.com" className="transition hover:text-white">
+                    enquiry.raavanathalaigal@gmail.com
                   </a>
                 </div>
               </div>
@@ -111,7 +111,7 @@ const FoundationFooter = () => {
         </div>
 
         <div className="flex flex-col gap-4 border-t border-white/10 py-6 text-sm text-white/45 md:flex-row md:items-center md:justify-between">
-          <p>&copy; {currentYear} Raavana Thalaigal. All rights reserved.</p>
+          <p>&copy; {currentYear} Raavana Thalaigal trust Trust. All rights reserved.</p>
           <div className="flex gap-6">
             <Link to="/privacy" className="transition hover:text-white">
               Privacy Policy

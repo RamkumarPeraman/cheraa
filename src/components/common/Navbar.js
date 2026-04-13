@@ -39,7 +39,7 @@ const Navbar = () => {
             </div>
             <span className={`text-xl font-bold ${scrolled ? 'text-ink-950' : 'text-white'
               }`}>
-              Raavana Thalaigal
+              Raavana Thalaigal trust Trust
             </span>
           </Link>
 

@@ -150,7 +150,7 @@ const Header = () => {
                   <img src={ravanaLogo} alt="" />
                 </div>
                 <span className="font-bold text-sm text-ink-950 md:text-xl">
-                  Raavana Thalaigal
+                  Raavana Thalaigal trust
                 </span>
               </Link>
             </div>
@@ -220,7 +220,7 @@ const Header = () => {
                   <img src={ravanaLogo} alt="" />
                 </div>
                 <div>
-                  <h2 className="text-white font-bold">Raavana Thalaigal</h2>
+                  <h2 className="text-white font-bold">Raavana Thalaigal trust</h2>
                   <p className="text-sm text-white/65">Empowering Communities</p>
                 </div>
               </div>
@@ -278,7 +278,7 @@ const Header = () => {
           </div>
 
           <div className="p-4 border-t border-gray-200">
-            <p className="text-xs text-gray-500 text-center">2024 Raavana Thalaigal. All rights reserved.</p>
+            <p className="text-xs text-gray-500 text-center">2024 Raavana Thalaigal trust. All rights reserved.</p>
           </div>
         </div>
       </aside>

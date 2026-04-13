@@ -23,7 +23,7 @@ const Footer = () => {
                   src={ravanaLogo}
                   alt="" />
               </div>
-              Raavana Thalaigal
+              Raavana Thalaigal trust
             </h3>
             <p className="text-gray-400 mb-4">
               Empowering communities through education, healthcare, and sustainable development.
@@ -116,7 +116,7 @@ const Footer = () => {
         <div className="border-t border-gray-800 pt-8 mt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm text-center md:text-left">
-              © {currentYear} Raavana Thalaigal. All rights reserved.
+              © {currentYear} Raavana Thalaigal trust. All rights reserved.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <Link to="/privacy" className="text-gray-400 hover:text-primary-500 text-sm">

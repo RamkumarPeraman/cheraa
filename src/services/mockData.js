@@ -196,7 +196,7 @@ export const mockTeam = [
     id: 1,
     name: "Dr. Suresh Kumar",
     role: "Founder & Director",
-    bio: "With 20 years of experience in social work, Dr. Kumar founded Raavana Thalaigal to create lasting change.",
+    bio: "With 20 years of experience in social work, Dr. Kumar founded Raavana Thalaigal trust to create lasting change.",
     image: "/assets/team/suresh.jpg",
     social: {
       linkedin: "https://linkedin.com/in/sureshkumar",
@@ -351,7 +351,7 @@ export const mockFAQs = [
   {
     id: 2,
     question: "Is my donation tax-exempt?",
-    answer: "Yes, donations to Raavana Thalaigal are eligible for tax exemption under Section 80G.",
+    answer: "Yes, donations to Raavana Thalaigal trust are eligible for tax exemption under Section 80G.",
     category: "Donations",
   },
 ];

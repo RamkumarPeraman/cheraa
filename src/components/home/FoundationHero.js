@@ -10,9 +10,9 @@ import {
 } from 'react-icons/fi';
 
 const trustStats = [
-  { value: '15+', label: 'Years of local service' },
-  { value: '5,000+', label: 'People supported across programs' },
-  { value: '120+', label: 'Volunteers and community partners' },
+  { value: '2+', label: 'Years of service' },
+  { value: '2,000+', label: 'People supported' },
+  { value: '100+', label: 'Volunteers and community partners' },
 ];
 
 const focusAreas = [
@@ -35,7 +35,7 @@ const focusAreas = [
 
 const FoundationHero = () => {
   return (
-    <section className="relative overflow-hidden bg-[#f5efe5] pt-28 text-ink-950">
+    <section className="relative overflow-hidden bg-[#f5efe5] pt-20 md:pt-15 text-ink-950">
       <div className="absolute inset-0">
         <div className="absolute left-0 top-0 h-[28rem] w-[28rem] rounded-full bg-primary-100 blur-3xl" />
         <div className="absolute right-[-8rem] top-16 h-[30rem] w-[30rem] rounded-full bg-accent-100 blur-3xl" />
@@ -46,15 +46,15 @@ const FoundationHero = () => {
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] lg:items-center">
           <div className="max-w-3xl">
             <div className="text-reveal inline-flex rounded-full border border-primary-200/70 bg-white/65 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary-700/85">
-              Inspired by proven education-led NGO storytelling
+              Let your existence begin with glory and dignity
             </div>
 
-            <h1 className="text-reveal text-reveal-delay-1 mt-6 text-4xl font-bold leading-[0.98] md:text-5xl lg:text-6xl">
-              Building stronger communities through sustained social impact.
+            <h1 className="text-reveal text-reveal-delay-1 mt-6 text-2xl font-bold leading-snug md:text-3xl lg:text-4xl">
+              To rise as a revolutionary Tamil movement, where heritage leads, voices unite, and youth become the fire of transformation
             </h1>
 
             <p className="text-reveal text-reveal-delay-2 mt-6 max-w-2xl text-base leading-7 text-ink-700 md:text-lg">
-              Raavana Thalaigal is presented here with a warmer, mission-first experience:
+              Raavana Thalaigal trust is presented here with a warmer, mission-first experience:
               one that puts people, participation, and long-term social impact at the
               center of the homepage.
             </p>

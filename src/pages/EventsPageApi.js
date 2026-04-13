@@ -123,7 +123,7 @@ const EventsPageApi = () => {
     const endDate = new Date(`${datePart}T${endTime}`);
     const ics = `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//Raavana Thalaigal//Events//EN
+PRODID:-//Raavana Thalaigal trust//Events//EN
 BEGIN:VEVENT
 UID:${event.id}@raavanathalaigal.org
 DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z

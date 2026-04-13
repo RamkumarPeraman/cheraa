@@ -54,7 +54,7 @@ const Hero = () => {
             </h1>
 
             <p className="mt-6 max-w-2xl text-lg leading-8 text-ink-700 md:text-xl">
-              Raavana Thalaigal is presented here with a warmer, mission-first experience:
+              Raavana Thalaigal trust is presented here with a warmer, mission-first experience:
               one that puts student opportunity, community participation, and long-term
               social impact at the center of the homepage.
             </p>

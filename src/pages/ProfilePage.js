@@ -43,7 +43,7 @@ const ProfilePage = () => {
     membershipType: 'Premium Member',
     membershipId: 'RTNGO2023015',
     profileImage: null,
-    bio: 'Passionate about social work and community development. Volunteering with Raavana Thalaigal for 2 years.',
+    bio: 'Passionate about social work and community development. Volunteering with Raavana Thalaigal trust for 2 years.',
     interests: ['Education', 'Healthcare', 'Environment'],
     skills: ['Teaching', 'Event Management', 'Fundraising'],
     socialLinks: {

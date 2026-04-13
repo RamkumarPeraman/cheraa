@@ -72,7 +72,7 @@ const ContactPage = () => {
   // FAQs
   const faqs = [
     {
-      question: 'How can I donate to Raavana Thalaigal?',
+      question: 'How can I donate to Raavana Thalaigal trust?',
       answer: 'You can donate online through our website via credit card, debit card, UPI, or net banking. You can also send a cheque or demand draft to our Chennai headquarters. All donations are eligible for tax exemption under Section 80G of the Income Tax Act.'
     },
     {

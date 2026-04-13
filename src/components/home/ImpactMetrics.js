@@ -47,16 +47,23 @@ const ImpactMetrics = () => {
       <div className="container-custom">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center">
           <div>
-            <div className="text-reveal text-xs font-semibold uppercase tracking-[0.22em] text-primary-700">
-              Why this layout works
-            </div>
             <h2 className="text-reveal text-reveal-delay-1 mt-4 text-3xl font-bold text-ink-950 md:text-4xl">
               Trust is built through clarity, not decoration.
             </h2>
-            <p className="text-reveal text-reveal-delay-2 mt-5 max-w-xl text-base leading-7 text-ink-700">
-              The homepage now reads more like a mission-driven institution: measurable impact,
-              a clear point of view, and visible pathways for donors, volunteers, and families.
-            </p>
+            <div className="text-reveal text-reveal-delay-2 mt-6 flex flex-col gap-3 sm:flex-row">
+              <a
+                href="/our-story"
+                className="inline-flex items-center justify-center rounded-full border border-primary-300 bg-white px-6 py-3 text-sm font-semibold text-primary-700 transition hover:bg-primary-700 hover:text-white"
+              >
+                Our Story
+              </a>
+              <a
+                href="/key-figures"
+                className="inline-flex items-center justify-center rounded-full border border-primary-300 bg-white px-6 py-3 text-sm font-semibold text-primary-700 transition hover:bg-primary-700 hover:text-white"
+              >
+                Key Figures
+              </a>
+            </div>
           </div>
 
           <div className="text-reveal text-reveal-delay-3 grid gap-4 sm:grid-cols-2">

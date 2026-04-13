@@ -6,8 +6,8 @@ const resolveApiBaseURL = () => {
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        //  return 'http://localhost:5000/api';
-        return 'https://raavanan-api.onrender.com/api';
+         return 'http://localhost:5000/api';
+        // return 'https://raavanan-api.onrender.com/api';
 
     }
   }
@@ -158,11 +158,11 @@ const config = {
 
   // Social media links
   socialMedia: {
-    facebook: 'https://facebook.com/raavanathalaigal',
-    twitter: 'https://twitter.com/raavanathalaigal',
-    instagram: 'https://instagram.com/raavanathalaigal',
-    linkedin: 'https://linkedin.com/company/raavanathalaigal',
-    youtube: 'https://youtube.com/raavanathalaigal',
+    facebook: 'https://www.facebook.com/share/1C4Tkx3Ndy/',
+    whatsapp: 'https://whatsapp.com/channel/0029Vb5NAAlGufIwYVr3CZ0r',
+    instagram: 'https://www.instagram.com/raavanathalaigalofficial?igsh=MTRtaXF6bnBxMHpzag==',
+    linkedin: 'https://shorturl.at/wx7aw',
+    youtube: 'http://www.youtube.com/@Raavanathalaigal',
   },
 
   // Navigation items
@@ -202,8 +202,8 @@ const config = {
 
   // Impact metrics (will be fetched from API)
   impactMetrics: {
-    lives: 5000,
-    volunteers: 500,
+    lives: 2000,
+    volunteers: 200,
     projects: 25,
     states: 10,
   },
