@@ -21,10 +21,10 @@ const FoundationFooter = () => {
       <div className="container-custom">
         <div className="rounded-[2rem] border border-white/10 bg-white/5 px-6 py-8 md:px-8 md:py-10">
           <div className="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_repeat(3,minmax(0,0.8fr))]">
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white p-2">
-                  <img src={ravanaLogo} alt="Raavana Thalaigal trust logo" />
+                  <img src={ravanaLogo} alt="Raavana Thalaigal Trust logo" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold md:text-2xl">Raavana Thalaigal Trust</h3>
@@ -89,19 +89,22 @@ const FoundationFooter = () => {
             <div>
               <h4 className="text-base font-semibold text-accent-300 md:text-lg">Contact</h4>
               <div className="mt-5 space-y-4 text-white/70">
-                <div className="flex items-start gap-3">
-                  <FiMapPin className="mt-1 h-5 w-5 text-accent-300" />
+                <div className="flex min-w-0 items-start gap-3">
+                  <FiMapPin className="mt-1 h-5 w-5 flex-shrink-0 text-accent-300" />
                   <span>212, 1st Floor, Ramalingam Road East, R.S. Puram, Coimbatore – 641002, Tamil Nadu, India.</span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <FiPhone className="h-5 w-5 text-accent-300" />
+                <div className="flex min-w-0 items-start gap-3">
+                  <FiPhone className="mt-0.5 h-5 w-5 flex-shrink-0 text-accent-300" />
                   <a href="tel:+919487814418" className="transition hover:text-white">
                     +91 94878 14418
                   </a>
                 </div>
-                <div className="flex items-center gap-3">
-                  <FiMail className="h-5 w-5 text-accent-300" />
-                  <a href="mailto:enquiry.raavanathalaigal@gmail.com" className="transition hover:text-white">
+                <div className="flex min-w-0 items-start gap-3">
+                  <FiMail className="mt-0.5 h-5 w-5 flex-shrink-0 text-accent-300" />
+                  <a
+                    href="mailto:enquiry.raavanathalaigal@gmail.com"
+                    className="min-w-0 break-all transition hover:text-white"
+                  >
                     enquiry.raavanathalaigal@gmail.com
                   </a>
                 </div>

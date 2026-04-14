@@ -592,7 +592,7 @@ const MyImpactPage = () => {
                 </button>
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText('Check out my impact at Raavana Thalaigal trust NGO!');
+                    navigator.clipboard.writeText('Check out my impact at Raavana Thalaigal Trust NGO!');
                     toast.success('Copied to clipboard!');
                     setShowShareModal(false);
                   }}

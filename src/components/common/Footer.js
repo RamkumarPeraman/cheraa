@@ -23,7 +23,7 @@ const Footer = () => {
                   src={ravanaLogo}
                   alt="" />
               </div>
-              Raavana Thalaigal trust
+              Raavana Thalaigal Trust
             </h3>
             <p className="text-gray-400 mb-4">
               Empowering communities through education, healthcare, and sustainable development.
@@ -99,7 +99,7 @@ const Footer = () => {
               <li className="flex items-center space-x-3">
                 <FiPhone className="text-primary-500 flex-shrink-0" />
                 <a href="tel:+919876543210" className="text-gray-400 hover:text-primary-500">
-                  +91 98765 43210
+                  +91 94878 14418
                 </a>
               </li>
               <li className="flex items-center space-x-3">
@@ -116,7 +116,7 @@ const Footer = () => {
         <div className="border-t border-gray-800 pt-8 mt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm text-center md:text-left">
-              © {currentYear} Raavana Thalaigal trust. All rights reserved.
+              © {currentYear} Raavana Thalaigal Trust. All rights reserved.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <Link to="/privacy" className="text-gray-400 hover:text-primary-500 text-sm">

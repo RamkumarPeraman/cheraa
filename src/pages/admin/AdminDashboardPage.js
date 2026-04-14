@@ -3,12 +3,13 @@ import {
   FiGrid, FiCalendar, FiFileText, FiUsers,
   FiPlus, FiEdit2, FiTrash2, FiSearch, FiDownload,
   FiCheck, FiX, FiDollarSign, FiUserCheck, FiSettings,
-  FiUpload, FiEye, FiImage,
+  FiUpload, FiEye, FiImage, FiChevronUp, FiChevronDown,
 } from 'react-icons/fi';
+import { FaRupeeSign } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import * as XLSX from 'xlsx';
 import ContentPopup from '../../components/admin/ContentPopup';
-import apiService from '../../services/api';
+import apiService, { defaultBankDetails, defaultHeroNewsCarousel } from '../../services/api';
 
 const contentTypes = [
   { id: 'projects', label: 'Projects', icon: FiGrid, popupType: 'project' },
@@ -17,7 +18,8 @@ const contentTypes = [
   { id: 'reports', label: 'Reports & Publications', icon: FiFileText, popupType: 'report' },
   { id: 'volunteer', label: 'Volunteer Opportunities', icon: FiUsers, popupType: 'volunteer' },
   { id: 'volunteerApplications', label: 'Volunteer Applications', icon: FiUserCheck, popupType: null },
-  { id: 'donations', label: 'Donations', icon: FiDollarSign, popupType: null },
+  { id: 'donations', label: 'Donations', icon: FaRupeeSign, popupType: null },
+  { id: 'homepageCarousel', label: 'Hero Carousel', icon: FiImage, popupType: null },
   { id: 'donationSettings', label: 'Donation Settings', icon: FiSettings, popupType: null },
 ];
 
@@ -31,12 +33,103 @@ const tableColumns = {
   donations: ['name', 'email', 'phone', 'amount', 'type', 'project', 'transactionId', 'paymentStatus', 'createdAt'],
 };
 
-const defaultBank = {
-  accountHolder: 'Partha Sarathi V',
-  bank: 'Canara Bank',
-  branch: 'Pattiveeranpatti',
-  accountNo: '110301563866',
-  ifscCode: 'CNRB0008438',
+const createHeroSlide = () => ({
+  id: `hero-slide-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+  category: 'Latest News',
+  title: '',
+  summary: '',
+  image: '',
+  link: '',
+  buttonLabel: 'Read more',
+});
+
+const normalizeHeroSlides = (slides = []) => {
+  const source = Array.isArray(slides) ? slides : [];
+
+  return source.map((slide, index) => ({
+    id: slide.id || `hero-slide-${index + 1}`,
+    category: slide.category || 'Latest News',
+    title: slide.title || '',
+    summary: slide.summary || '',
+    image:
+      typeof slide.image === 'string' &&
+      slide.image.startsWith('data:image/') &&
+      slide.image.length > 350000
+        ? ''
+        : (slide.image || ''),
+    link: slide.link || '',
+    buttonLabel: slide.buttonLabel || 'Read more',
+  }));
+};
+
+const getFallbackHeroImage = (index = 0) =>
+  defaultHeroNewsCarousel[index % defaultHeroNewsCarousel.length]?.image || '';
+
+const resolveHeroImage = (src, fallbackSrc) => {
+  if (typeof src === 'string' && src.startsWith('data:image/') && src.length > 350000) {
+    return fallbackSrc || '';
+  }
+
+  return src || fallbackSrc || '';
+};
+
+const loadImageFromFile = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = reject;
+      image.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
+const compressHeroSlideImage = async (file) => {
+  const image = await loadImageFromFile(file);
+  const maxWidth = 1600;
+  const maxHeight = 900;
+  const ratio = Math.min(maxWidth / image.width, maxHeight / image.height, 1);
+  const width = Math.max(1, Math.round(image.width * ratio));
+  const height = Math.max(1, Math.round(image.height * ratio));
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+
+  const context = canvas.getContext('2d');
+  if (!context) {
+    throw new Error('Image processing is unavailable');
+  }
+  context.drawImage(image, 0, 0, width, height);
+
+  return canvas.toDataURL('image/jpeg', 0.82);
+};
+
+const PreviewImage = ({ src, fallbackSrc, alt, className }) => {
+  const [imageSrc, setImageSrc] = useState(resolveHeroImage(src, fallbackSrc));
+
+  useEffect(() => {
+    setImageSrc(resolveHeroImage(src, fallbackSrc));
+  }, [src, fallbackSrc]);
+
+  if (!imageSrc) {
+    return null;
+  }
+
+  return (
+    <img
+      src={imageSrc}
+      alt={alt}
+      className={className}
+      onError={() => {
+        if (fallbackSrc && imageSrc !== fallbackSrc) {
+          setImageSrc(fallbackSrc);
+        }
+      }}
+    />
+  );
 };
 
 const AdminDashboardPage = () => {
@@ -57,8 +150,10 @@ const AdminDashboardPage = () => {
   // Donation Settings state
   const [settingsLoading, setSettingsLoading] = useState(false);
   const [settingsSaving, setSettingsSaving] = useState(false);
+  const [heroSaving, setHeroSaving] = useState(false);
   const [qrImage, setQrImage] = useState('');
-  const [bankDetails, setBankDetails] = useState({ ...defaultBank });
+  const [bankDetails, setBankDetails] = useState({ ...defaultBankDetails });
+  const [heroCarouselSlides, setHeroCarouselSlides] = useState([]);
   const qrFileRef = useRef(null);
 
   useEffect(() => {
@@ -66,7 +161,7 @@ const AdminDashboardPage = () => {
   }, []);
 
   useEffect(() => {
-    if (activeTab === 'donationSettings') {
+    if (activeTab === 'donationSettings' || activeTab === 'homepageCarousel') {
       loadAdminSettings();
     }
   }, [activeTab]);
@@ -77,7 +172,8 @@ const AdminDashboardPage = () => {
       const res = await apiService.getAdminSettings();
       if (res?.data) {
         setQrImage(res.data.donationQrImage || '');
-        setBankDetails({ ...defaultBank, ...res.data.bankDetails });
+        setBankDetails({ ...defaultBankDetails, ...res.data.bankDetails });
+        setHeroCarouselSlides(normalizeHeroSlides(res.data.heroNewsCarousel));
       }
     } catch (e) {
       toast.error('Failed to load settings');
@@ -104,6 +200,66 @@ const AdminDashboardPage = () => {
       toast.error(e.message || 'Failed to save settings');
     } finally {
       setSettingsSaving(false);
+    }
+  };
+
+  const handleHeroSlideChange = (slideId, field, value) => {
+    setHeroCarouselSlides((prev) => prev.map((slide) => (
+      slide.id === slideId ? { ...slide, [field]: value } : slide
+    )));
+  };
+
+  const handleHeroSlideImageChange = async (slideId, file) => {
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Slide image must be under 5MB');
+      return;
+    }
+
+    try {
+      const compressedImage = await compressHeroSlideImage(file);
+      handleHeroSlideChange(slideId, 'image', compressedImage);
+      toast.success('Slide image optimized for the homepage');
+    } catch (error) {
+      toast.error('Failed to process slide image');
+    }
+  };
+
+  const handleMoveHeroSlide = (slideId, direction) => {
+    setHeroCarouselSlides((prev) => {
+      const currentIndex = prev.findIndex((slide) => slide.id === slideId);
+      if (currentIndex < 0) return prev;
+
+      const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+      if (targetIndex < 0 || targetIndex >= prev.length) return prev;
+
+      const next = [...prev];
+      [next[currentIndex], next[targetIndex]] = [next[targetIndex], next[currentIndex]];
+      return next;
+    });
+  };
+
+  const handleAddHeroSlide = () => {
+    setHeroCarouselSlides((prev) => [...prev, createHeroSlide()]);
+  };
+
+  const handleRemoveHeroSlide = (slideId) => {
+    if (heroCarouselSlides.length === 1) {
+      toast.info('At least one slide is recommended for the homepage carousel');
+    }
+
+    setHeroCarouselSlides((prev) => prev.filter((slide) => slide.id !== slideId));
+  };
+
+  const handleSaveHeroCarousel = async () => {
+    setHeroSaving(true);
+    try {
+      await apiService.updateAdminSettings({ heroNewsCarousel: heroCarouselSlides });
+      toast.success('Hero carousel saved successfully!');
+    } catch (error) {
+      toast.error(error.message || 'Failed to save hero carousel');
+    } finally {
+      setHeroSaving(false);
     }
   };
 
@@ -344,7 +500,29 @@ const AdminDashboardPage = () => {
     return value || '-';
   };
 
-  const isSpecialTab = activeTab === 'volunteerApplications' || activeTab === 'donations' || activeTab === 'donationSettings';
+  const isSpecialTab = ['volunteerApplications', 'donations', 'donationSettings', 'homepageCarousel'].includes(activeTab);
+
+  const renderDashboardTabs = () => (
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      {contentTypes.map((type) => (
+        <button
+          key={type.id}
+          onClick={() => { setActiveTab(type.id); setSearchTerm(''); setVolunteerFilter('all'); setDonationStatusFilter('all'); }}
+          className={`p-4 rounded-lg shadow text-left transition-colors ${activeTab === type.id ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:shadow-md'}`}
+        >
+          <type.icon className="w-6 h-6 mb-3" />
+          <div className="text-sm font-semibold">{type.label}</div>
+          <div className={`text-xs mt-1 ${activeTab === type.id ? 'text-primary-100' : 'text-gray-500'}`}>
+            {type.id === 'donationSettings'
+              ? 'Configure'
+              : type.id === 'homepageCarousel'
+                ? `${heroCarouselSlides.length} slides`
+                : `${itemsByType[type.id]?.length || 0} items`}
+          </div>
+        </button>
+      ))}
+    </div>
+  );
 
   // ---- Donation Settings Panel ----
   if (activeTab === 'donationSettings') {
@@ -358,22 +536,7 @@ const AdminDashboardPage = () => {
             </div>
           </div>
 
-          {/* Tab cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {contentTypes.map((type) => (
-              <button
-                key={type.id}
-                onClick={() => { setActiveTab(type.id); setSearchTerm(''); setVolunteerFilter('all'); setDonationStatusFilter('all'); }}
-                className={`p-4 rounded-lg shadow text-left transition-colors ${activeTab === type.id ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:shadow-md'}`}
-              >
-                <type.icon className="w-6 h-6 mb-3" />
-                <div className="text-sm font-semibold">{type.label}</div>
-                <div className={`text-xs mt-1 ${activeTab === type.id ? 'text-primary-100' : 'text-gray-500'}`}>
-                  {type.id === 'donationSettings' ? 'Configure' : (itemsByType[type.id]?.length || 0) + ' items'}
-                </div>
-              </button>
-            ))}
-          </div>
+          {renderDashboardTabs()}
 
           {settingsLoading ? (
             <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div></div>
@@ -412,7 +575,7 @@ const AdminDashboardPage = () => {
 
               {/* Bank Details */}
               <div className="bg-white rounded-lg shadow-lg p-6">
-                <h2 className="text-xl font-bold mb-1 flex items-center gap-2"><FiDollarSign /> Bank Account Details</h2>
+                <h2 className="text-xl font-bold mb-1 flex items-center gap-2"><FaRupeeSign /> Bank Account Details</h2>
                 <p className="text-sm text-gray-500 mb-5">These details are shown on the donation page for direct bank transfers.</p>
 
                 <div className="space-y-4">
@@ -453,6 +616,229 @@ const AdminDashboardPage = () => {
     );
   }
 
+  if (activeTab === 'homepageCarousel') {
+    return (
+      <div className="pt-20 pb-16 min-h-screen bg-gray-50">
+        <div className="container-custom">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
+              <p className="text-gray-600">Manage the hero news carousel displayed between the homepage badge and headline.</p>
+            </div>
+            <button
+              onClick={handleAddHeroSlide}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 flex items-center"
+            >
+              <FiPlus className="mr-2" />
+              Add Slide
+            </button>
+          </div>
+
+          {renderDashboardTabs()}
+
+          {settingsLoading ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="bg-white rounded-lg shadow-lg p-6">
+                <h2 className="text-xl font-bold text-gray-900">Hero carousel preview</h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  These slides are stored in the database and shown only on the public homepage. Add image, title, summary, and link for each slide.
+                </p>
+              </div>
+
+              {heroCarouselSlides.length === 0 && (
+                <div className="bg-white rounded-2xl shadow-lg p-10 text-center">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 text-primary-600">
+                    <FiImage size={28} />
+                  </div>
+                  <h3 className="mt-5 text-xl font-bold text-gray-900">No homepage slides yet</h3>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Add a slide here and save it to store the homepage carousel in the database.
+                  </p>
+                </div>
+              )}
+
+              {heroCarouselSlides.map((slide, index) => (
+                <div key={slide.id} className="bg-white rounded-2xl shadow-lg p-6">
+                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-6">
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-600">
+                        Slide {index + 1}
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900 mt-2">
+                        {slide.title || 'Untitled slide'}
+                      </h3>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleMoveHeroSlide(slide.id, 'up')}
+                        disabled={index === 0}
+                        className="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+                      >
+                        <FiChevronUp />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleMoveHeroSlide(slide.id, 'down')}
+                        disabled={index === heroCarouselSlides.length - 1}
+                        className="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+                      >
+                        <FiChevronDown />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveHeroSlide(slide.id)}
+                        className="px-3 py-2 border border-red-200 rounded-lg text-sm text-red-600 hover:bg-red-50"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.2fr)_360px] gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Category</label>
+                        <input
+                          type="text"
+                          value={slide.category}
+                          onChange={(e) => handleHeroSlideChange(slide.id, 'category', e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 text-sm"
+                          placeholder="Movement Update"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Button Label</label>
+                        <input
+                          type="text"
+                          value={slide.buttonLabel}
+                          onChange={(e) => handleHeroSlideChange(slide.id, 'buttonLabel', e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 text-sm"
+                          placeholder="Read more"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Title</label>
+                        <input
+                          type="text"
+                          value={slide.title}
+                          onChange={(e) => handleHeroSlideChange(slide.id, 'title', e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 text-sm"
+                          placeholder="Featured headline"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Summary</label>
+                        <textarea
+                          rows={4}
+                          value={slide.summary}
+                          onChange={(e) => handleHeroSlideChange(slide.id, 'summary', e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 text-sm resize-none"
+                          placeholder="Short supporting summary for this news slide"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Link</label>
+                        <input
+                          type="text"
+                          value={slide.link}
+                          onChange={(e) => handleHeroSlideChange(slide.id, 'link', e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 text-sm"
+                          placeholder="/blogs or https://..."
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="border-2 border-dashed border-gray-300 rounded-2xl p-4">
+                        {slide.image ? (
+                          <div className="space-y-3">
+                            <PreviewImage
+                              src={slide.image}
+                              fallbackSrc={getFallbackHeroImage(index)}
+                              alt={slide.title || `Slide ${index + 1}`}
+                              className="w-full h-48 object-cover rounded-xl border border-gray-200"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleHeroSlideChange(slide.id, 'image', '')}
+                              className="w-full px-4 py-2 border border-red-200 rounded-lg text-sm text-red-600 hover:bg-red-50"
+                            >
+                              Remove image
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="text-center text-gray-400 py-8">
+                            <FiImage size={36} className="mx-auto mb-3" />
+                            <p className="text-sm font-medium">Upload slide image</p>
+                            <p className="text-xs mt-1">PNG, JPG up to 5MB</p>
+                          </div>
+                        )}
+
+                        <label className="mt-4 inline-flex w-full justify-center px-4 py-2 bg-primary-50 text-primary-700 rounded-lg hover:bg-primary-100 cursor-pointer text-sm font-semibold">
+                          <FiUpload className="mr-2 mt-0.5" />
+                          Choose image
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              handleHeroSlideImageChange(slide.id, e.target.files?.[0]);
+                              e.target.value = '';
+                            }}
+                          />
+                        </label>
+                        <p className="mt-3 text-xs text-gray-500">
+                          Large images are automatically compressed before saving.
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl overflow-hidden bg-[#0f2f2f] text-white min-h-[220px] relative">
+                        <PreviewImage
+                          src={slide.image}
+                          fallbackSrc={getFallbackHeroImage(index)}
+                          alt=""
+                          className="absolute inset-0 h-full w-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#082629]/90 via-[#082629]/76 to-[#082629]/40" />
+                        <div className="relative z-10 p-5 flex h-full flex-col justify-end">
+                          <span className="inline-flex w-fit rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/90">
+                            {slide.category || 'Latest News'}
+                          </span>
+                          <h4 className="mt-3 text-lg font-bold leading-snug">
+                            {slide.title || 'Slide title preview'}
+                          </h4>
+                          <p className="mt-2 text-sm leading-6 text-white/80">
+                            {slide.summary || 'Slide summary preview will appear here.'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <div className="flex justify-end">
+                <button
+                  onClick={handleSaveHeroCarousel}
+                  disabled={heroSaving}
+                  className="w-full md:w-auto px-8 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {heroSaving ? 'Saving...' : 'Save Hero Carousel'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   // ---- Main Dashboard ----
   return (
     <div className="pt-20 pb-16 min-h-screen bg-gray-50">
@@ -463,7 +849,7 @@ const AdminDashboardPage = () => {
             <p className="text-gray-600">Create, edit, and delete the content shown on your public pages.</p>
           </div>
           <div className="flex gap-3">
-            {activeTab !== 'donationSettings' && (
+            {activeTab !== 'donationSettings' && activeTab !== 'homepageCarousel' && (
               <button onClick={handleExport} className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center">
                 <FiDownload className="mr-2" />
                 {activeTab === 'volunteerApplications' ? 'Export Accepted (Excel)' : activeTab === 'donations' ? 'Export (Excel)' : 'Export'}
@@ -478,22 +864,7 @@ const AdminDashboardPage = () => {
           </div>
         </div>
 
-        {/* Tab cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {contentTypes.map((type) => (
-            <button
-              key={type.id}
-              onClick={() => { setActiveTab(type.id); setSearchTerm(''); setVolunteerFilter('all'); setDonationStatusFilter('all'); }}
-              className={`p-4 rounded-lg shadow text-left transition-colors ${activeTab === type.id ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:shadow-md'}`}
-            >
-              <type.icon className="w-6 h-6 mb-3" />
-              <div className="text-sm font-semibold">{type.label}</div>
-              <div className={`text-xs mt-1 ${activeTab === type.id ? 'text-primary-100' : 'text-gray-500'}`}>
-                {type.id === 'donationSettings' ? 'Configure' : (itemsByType[type.id]?.length || 0) + ' items'}
-              </div>
-            </button>
-          ))}
-        </div>
+        {renderDashboardTabs()}
 
         {/* Search + filter */}
         <div className="bg-white rounded-lg shadow p-4 mb-6">

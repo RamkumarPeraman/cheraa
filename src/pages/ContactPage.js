@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { 
   FiMapPin, FiPhone, FiMail, FiClock, FiSend, FiUser,
-  FiMessageSquare, FiCheckCircle, FiFacebook, FiTwitter,
-  FiInstagram, FiLinkedin, FiYoutube, FiGlobe, FiHeart,
-  FiHelpCircle, FiBriefcase, FiCalendar, FiUsers
+  FiMessageSquare, FiFacebook,
+  FiInstagram, FiLinkedin, FiYoutube, FiHeart, FiMessageCircle,
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import apiService from '../services/api';
@@ -23,56 +22,51 @@ const ContactPage = () => {
 
   const [faqOpen, setFaqOpen] = useState({});
 
-  // Office locations
-  const offices = [
-    {
-      city: 'Chennai (Headquarters)',
-      address: '123 NGO Colony, T Nagar, Chennai - 600017',
-      phone: '+91 44 2345 6789',
-      email: 'chennai@raavanathalaigal.org',
-      hours: 'Mon-Fri: 9:00 AM - 6:00 PM',
-      coordinates: { lat: 13.0827, lng: 80.2707 }
-    },
-    {
-      city: 'Mumbai Office',
-      address: '456 Social Service Road, Andheri East, Mumbai - 400069',
-      phone: '+91 22 3456 7890',
-      email: 'mumbai@raavanathalaigal.org',
-      hours: 'Mon-Fri: 9:00 AM - 6:00 PM',
-      coordinates: { lat: 19.0760, lng: 72.8777 }
-    },
-    {
-      city: 'Delhi Office',
-      address: '789 Community Center, Lajpat Nagar, New Delhi - 110024',
-      phone: '+91 11 4567 8901',
-      email: 'delhi@raavanathalaigal.org',
-      hours: 'Mon-Fri: 9:00 AM - 6:00 PM',
-      coordinates: { lat: 28.6139, lng: 77.2090 }
-    },
-    {
-      city: 'Bangalore Office',
-      address: '321 Green Avenue, Indiranagar, Bangalore - 560038',
-      phone: '+91 80 5678 9012',
-      email: 'bangalore@raavanathalaigal.org',
-      hours: 'Mon-Fri: 9:00 AM - 6:00 PM',
-      coordinates: { lat: 12.9716, lng: 77.5946 }
-    }
-  ];
+  const contactDetails = {
+    addressLine1: '212, 1st Floor, Ramalingam Road East',
+    addressLine2: 'R.S. Puram, Coimbatore - 641002',
+    addressLine3: 'Tamil Nadu, India',
+    phone: '+91 94878 14418',
+    email: 'enquiry.raavanathalaigal@gmail.com'
+  };
 
-  // Department contacts
-  const departments = [
-    { name: 'General Inquiries', email: 'info@raavanathalaigal.org', phone: '+91 44 2345 6789', extension: '101' },
-    { name: 'Donations', email: 'donate@raavanathalaigal.org', phone: '+91 44 2345 6789', extension: '102' },
-    { name: 'Volunteer Coordination', email: 'volunteer@raavanathalaigal.org', phone: '+91 44 2345 6789', extension: '103' },
-    { name: 'Project Partnerships', email: 'partnerships@raavanathalaigal.org', phone: '+91 44 2345 6789', extension: '104' },
-    { name: 'Media & Communications', email: 'media@raavanathalaigal.org', phone: '+91 44 2345 6789', extension: '105' },
-    { name: 'HR & Careers', email: 'careers@raavanathalaigal.org', phone: '+91 44 2345 6789', extension: '106' }
+  const socialLinks = [
+    {
+      name: 'Facebook',
+      href: 'https://www.facebook.com/share/1C4Tkx3Ndy/',
+      className: 'bg-blue-600 hover:bg-blue-700',
+      icon: FiFacebook
+    },
+    {
+      name: 'Instagram',
+      href: 'https://www.instagram.com/raavanathalaigalofficial?igsh=MTRtaXF6bnBxMHpzag==',
+      className: 'bg-pink-600 hover:bg-pink-700',
+      icon: FiInstagram
+    },
+    {
+      name: 'LinkedIn',
+      href: 'https://shorturl.at/wx7aw',
+      className: 'bg-blue-700 hover:bg-blue-800',
+      icon: FiLinkedin
+    },
+    {
+      name: 'YouTube',
+      href: 'http://www.youtube.com/@Raavanathalaigal',
+      className: 'bg-red-600 hover:bg-red-700',
+      icon: FiYoutube
+    },
+    {
+      name: 'WhatsApp Channel',
+      href: 'https://whatsapp.com/channel/0029Vb5NAAlGufIwYVr3CZ0r',
+      className: 'bg-green-600 hover:bg-green-700',
+      icon: FiMessageCircle
+    }
   ];
 
   // FAQs
   const faqs = [
     {
-      question: 'How can I donate to Raavana Thalaigal trust?',
+      question: 'How can I donate to Raavana Thalaigal Trust?',
       answer: 'You can donate online through our website via credit card, debit card, UPI, or net banking. You can also send a cheque or demand draft to our Chennai headquarters. All donations are eligible for tax exemption under Section 80G of the Income Tax Act.'
     },
     {
@@ -179,9 +173,9 @@ const ContactPage = () => {
             </div>
             <h3 className="text-lg font-semibold mb-2">Visit Us</h3>
             <p className="text-gray-600 text-sm">
-              123 NGO Colony<br />
-              T Nagar, Chennai - 600017<br />
-              Tamil Nadu, India
+              {contactDetails.addressLine1}<br />
+              {contactDetails.addressLine2}<br />
+              {contactDetails.addressLine3}
             </p>
           </div>
 
@@ -191,8 +185,8 @@ const ContactPage = () => {
             </div>
             <h3 className="text-lg font-semibold mb-2">Call Us</h3>
             <p className="text-gray-600 text-sm">
-              +91 44 2345 6789<br />
-              +91 98765 43210<br />
+              {contactDetails.phone}<br />
+              Secretariat Office<br />
               Mon-Fri, 9am-6pm
             </p>
           </div>
@@ -203,9 +197,9 @@ const ContactPage = () => {
             </div>
             <h3 className="text-lg font-semibold mb-2">Email Us</h3>
             <p className="text-gray-600 text-sm">
-              info@raavanathalaigal.org<br />
-              support@raavanathalaigal.org<br />
-              24/7 Support
+              {contactDetails.email}<br />
+              Official Enquiries<br />
+              Reply during office hours
             </p>
           </div>
 
@@ -431,35 +425,16 @@ const ContactPage = () => {
               <div className="space-y-3">
                 <div className="flex items-center">
                   <FiPhone className="mr-3" />
-                  <span>24/7 Helpline: +91 98765 43210</span>
+                  <a href={`tel:${contactDetails.phone.replace(/\s+/g, '')}`} className="hover:underline">
+                    Mobile: {contactDetails.phone}
+                  </a>
                 </div>
                 <div className="flex items-center">
                   <FiMail className="mr-3" />
-                  <span>emergency@raavanathalaigal.org</span>
+                  <a href={`mailto:${contactDetails.email}`} className="break-all hover:underline">
+                    {contactDetails.email}
+                  </a>
                 </div>
-              </div>
-            </div>
-
-            {/* Department Contacts */}
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h3 className="text-lg font-semibold mb-4 flex items-center">
-                <FiBriefcase className="mr-2 text-primary-600" />
-                Department Contacts
-              </h3>
-              <div className="space-y-4">
-                {departments.map((dept, index) => (
-                  <div key={index} className="border-b border-gray-200 last:border-0 pb-3 last:pb-0">
-                    <p className="font-medium text-gray-800">{dept.name}</p>
-                    <p className="text-sm text-gray-600 flex items-center mt-1">
-                      <FiMail className="mr-2 text-primary-600" size={12} />
-                      {dept.email}
-                    </p>
-                    <p className="text-sm text-gray-600 flex items-center">
-                      <FiPhone className="mr-2 text-primary-600" size={12} />
-                      {dept.phone} Ext: {dept.extension}
-                    </p>
-                  </div>
-                ))}
               </div>
             </div>
 
@@ -467,56 +442,21 @@ const ContactPage = () => {
             <div className="bg-white rounded-lg shadow-lg p-6">
               <h3 className="text-lg font-semibold mb-4">Follow Us</h3>
               <div className="grid grid-cols-3 gap-3">
-                <a href="#" className="bg-blue-600 text-white p-3 rounded-lg text-center hover:bg-blue-700 transition-colors">
-                  <FiFacebook className="w-6 h-6 mx-auto" />
-                </a>
-                <a href="#" className="bg-blue-400 text-white p-3 rounded-lg text-center hover:bg-blue-500 transition-colors">
-                  <FiTwitter className="w-6 h-6 mx-auto" />
-                </a>
-                <a href="#" className="bg-pink-600 text-white p-3 rounded-lg text-center hover:bg-pink-700 transition-colors">
-                  <FiInstagram className="w-6 h-6 mx-auto" />
-                </a>
-                <a href="#" className="bg-blue-700 text-white p-3 rounded-lg text-center hover:bg-blue-800 transition-colors">
-                  <FiLinkedin className="w-6 h-6 mx-auto" />
-                </a>
-                <a href="#" className="bg-red-600 text-white p-3 rounded-lg text-center hover:bg-red-700 transition-colors">
-                  <FiYoutube className="w-6 h-6 mx-auto" />
-                </a>
-                <a href="#" className="bg-gray-800 text-white p-3 rounded-lg text-center hover:bg-gray-900 transition-colors">
-                  <FiGlobe className="w-6 h-6 mx-auto" />
-                </a>
+                {socialLinks.map(({ name, href, className, icon: Icon }) => (
+                  <a
+                    key={name}
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={name}
+                    title={name}
+                    className={`${className} text-white p-3 rounded-lg text-center transition-colors`}
+                  >
+                    <Icon className="w-6 h-6 mx-auto" />
+                  </a>
+                ))}
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Office Locations */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold mb-6 text-center">Our Offices</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {offices.map((office, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
-                <h3 className="text-lg font-semibold mb-3 text-primary-600">{office.city}</h3>
-                <div className="space-y-2 text-sm text-gray-600">
-                  <p className="flex items-start">
-                    <FiMapPin className="mr-2 text-primary-600 mt-1 flex-shrink-0" />
-                    <span>{office.address}</span>
-                  </p>
-                  <p className="flex items-center">
-                    <FiPhone className="mr-2 text-primary-600 flex-shrink-0" />
-                    <span>{office.phone}</span>
-                  </p>
-                  <p className="flex items-center">
-                    <FiMail className="mr-2 text-primary-600 flex-shrink-0" />
-                    <span className="text-sm break-all">{office.email}</span>
-                  </p>
-                  <p className="flex items-center">
-                    <FiClock className="mr-2 text-primary-600 flex-shrink-0" />
-                    <span>{office.hours}</span>
-                  </p>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
 

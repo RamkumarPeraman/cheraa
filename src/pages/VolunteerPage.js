@@ -240,7 +240,7 @@ const VolunteerPage = () => {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">Volunteer With Us</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Raavana Thalaigal trust stands for knowledge, dignity, and disciplined action. It invites every individual to rise not just in number, but in value. To lead not with power, but with principle.
+            Raavana Thalaigal Trust stands for knowledge, dignity, and disciplined action. It invites every individual to rise not just in number, but in value. To lead not with power, but with principle.
           </p>
         </div>
 
@@ -586,7 +586,7 @@ const VolunteerPage = () => {
                     <label className="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg">
                       <input type="checkbox" name="agreeConduct" checked={formData.agreeConduct} onChange={handleInputChange} className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500 mt-1" />
                       <span className="text-sm text-gray-700">
-                        I agree to abide by the code of conduct and guidelines by the Raavana Thalaigal trust Trust. I consent to the Trust using my contact details for communication related to this drive. <span className="text-red-500">*</span>
+                        I agree to abide by the code of conduct and guidelines by the Raavana Thalaigal Trust Trust. I consent to the Trust using my contact details for communication related to this drive. <span className="text-red-500">*</span>
                       </span>
                     </label>
                     <label className="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg">

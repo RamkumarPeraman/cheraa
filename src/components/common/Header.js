@@ -146,11 +146,15 @@ const Header = () => {
               </button>
 
               <Link to="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 md:w-10 md:h-10 bg-white rounded-full flex items-center justify-center">
-                  <img src={ravanaLogo} alt="" />
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#fff2cf] ring-1 ring-[#b36a12]/20 md:h-10 md:w-10">
+                  <img
+                    src={ravanaLogo}
+                    alt="Raavana Thalaigal Trust logo"
+                    className="block h-full w-full object-cover"
+                  />
                 </div>
                 <span className="font-bold text-sm text-ink-950 md:text-xl">
-                  Raavana Thalaigal trust
+                  Raavana Thalaigal Trust
                 </span>
               </Link>
             </div>
@@ -216,11 +220,15 @@ const Header = () => {
           <div className="bg-[#201814] p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                  <img src={ravanaLogo} alt="" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#fff2cf] shadow-lg shadow-black/20 ring-1 ring-[#f4c56b]/35">
+                  <img
+                    src={ravanaLogo}
+                    alt="Raavana Thalaigal Trust logo"
+                    className="block h-full w-full object-cover"
+                  />
                 </div>
                 <div>
-                  <h2 className="text-white font-bold">Raavana Thalaigal trust</h2>
+                  <h2 className="text-white font-bold">Raavana Thalaigal Trust</h2>
                   <p className="text-sm text-white/65">Empowering Communities</p>
                 </div>
               </div>
@@ -269,16 +277,14 @@ const Header = () => {
               <div className="bg-gray-50 rounded-lg p-4">
                 <h4 className="font-semibold text-gray-700 mb-2">Get in Touch</h4>
                 <div className="space-y-2 text-sm text-gray-600">
-                  <div className="flex items-center"><FiPhone className="mr-2 text-primary-600" size={14} /><span>+91 98765 43210</span></div>
-                  <div className="flex items-center"><FiMail className="mr-2 text-primary-600" size={14} /><span>info@rtngo.org</span></div>
-                  <div className="flex items-start"><FiMapPin className="mr-2 text-primary-600 mt-1" size={14} /><span>Chennai, Tamil Nadu</span></div>
+                  <div className="flex items-center"><FiPhone className="mr-2 text-primary-600" size={14} /><span>+91 94878 14418</span></div>                 
                 </div>
               </div>
             </div>
           </div>
 
           <div className="p-4 border-t border-gray-200">
-            <p className="text-xs text-gray-500 text-center">2024 Raavana Thalaigal trust. All rights reserved.</p>
+            <p className="text-xs text-gray-500 text-center">2024 Raavana Thalaigal Trust. All rights reserved.</p>
           </div>
         </div>
       </aside>

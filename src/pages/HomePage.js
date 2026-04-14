@@ -1,5 +1,5 @@
 import React from 'react';
-import Hero from '../components/home/FoundationHero';
+import Hero from '../components/home/FoundationHeroCarousel';
 import ImpactMetrics from '../components/home/ImpactMetrics';
 import ProjectsSummary from '../components/home/ProjectsSummary';
 import LatestNews from '../components/home/LatestNews';

@@ -2,6 +2,47 @@ import axios from 'axios';
 import config from '../config';
 import * as mockData from './mockData';
 
+export const defaultBankDetails = {
+  accountHolder: 'Partha Sarathi V',
+  bank: 'Canara Bank',
+  branch: 'Pattiveeranpatti',
+  accountNo: '110301563866',
+  ifscCode: 'CNRB0008438',
+};
+
+export const defaultHeroNewsCarousel = [
+  {
+    id: 'hero-news-1',
+    category: 'Movement Update',
+    title: 'Students are building local change through service, learning, and shared responsibility.',
+    summary: 'Highlight community-led efforts, youth participation, and the stories that show how collective action creates visible impact.',
+    image: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80',
+    link: '/blogs',
+    buttonLabel: 'Explore updates',
+  },
+  {
+    id: 'hero-news-2',
+    category: 'Youth Voice',
+    title: 'From campus energy to community action, new volunteers are stepping into meaningful work.',
+    summary: 'Use this space for featured announcements, campaign launches, event recaps, or stories from the ground.',
+    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80',
+    link: '/volunteer',
+    buttonLabel: 'Join the movement',
+  },
+  {
+    id: 'hero-news-3',
+    category: 'Featured Story',
+    title: 'Heritage, unity, and bold youth leadership continue to shape the trust’s public mission.',
+    summary: 'Admins can replace these images, titles, summaries, and links directly from the dashboard whenever new news needs to be featured.',
+    image: 'https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?auto=format&fit=crop&w=1200&q=80',
+    link: '/our-story',
+    buttonLabel: 'Read our story',
+  },
+];
+
+defaultHeroNewsCarousel[0].link = '/blogs';
+defaultHeroNewsCarousel[2].title = "Heritage, unity, and bold youth leadership continue to shape the trust's public mission.";
+
 const extractListData = (payload) => {
   if (Array.isArray(payload)) {
     return payload;
@@ -183,7 +224,14 @@ const apiService = {
       const response = await api.get('/admin-settings');
       return response.data;
     } catch (error) {
-      return { success: true, data: { donationQrImage: '', bankDetails: { accountHolder: 'Partha Sarathi V', bank: 'Canara Bank', branch: 'Pattiveeranpatti', accountNo: '110301563866', ifscCode: 'CNRB0008438' } } };
+      return {
+        success: true,
+        data: {
+          donationQrImage: '',
+          bankDetails: defaultBankDetails,
+          heroNewsCarousel: [],
+        },
+      };
     }
   },
 

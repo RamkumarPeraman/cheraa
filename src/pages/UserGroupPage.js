@@ -133,7 +133,7 @@ const UserGroupPage = () => {
         id: 1,
         name: 'Rajesh Kumar',
         email: 'rajesh.kumar@rtngo.org',
-        phone: '+91 98765 43210',
+        phone: '+91 94878 14418',
         role: 'super_admin',
         department: 'Administration',
         status: 'active',
@@ -156,7 +156,7 @@ const UserGroupPage = () => {
           country: 'India'
         },
         occupation: 'Social Worker',
-        organization: 'Raavana Thalaigal trust',
+        organization: 'Raavana Thalaigal Trust',
         membershipId: 'RT001',
         membershipType: 'Founder',
         socialLinks: {
@@ -195,7 +195,7 @@ const UserGroupPage = () => {
           country: 'India'
         },
         occupation: 'Program Manager',
-        organization: 'Raavana Thalaigal trust',
+        organization: 'Raavana Thalaigal Trust',
         membershipId: 'RT002',
         membershipType: 'Staff',
         socialLinks: {
@@ -234,7 +234,7 @@ const UserGroupPage = () => {
           country: 'India'
         },
         occupation: 'Healthcare Coordinator',
-        organization: 'Raavana Thalaigal trust',
+        organization: 'Raavana Thalaigal Trust',
         membershipId: 'RT003',
         membershipType: 'Staff',
         socialLinks: {
@@ -273,7 +273,7 @@ const UserGroupPage = () => {
           country: 'India'
         },
         occupation: 'Volunteer Coordinator',
-        organization: 'Raavana Thalaigal trust',
+        organization: 'Raavana Thalaigal Trust',
         membershipId: 'RT004',
         membershipType: 'Staff',
         socialLinks: {
@@ -468,7 +468,7 @@ const UserGroupPage = () => {
           country: 'India'
         },
         occupation: 'Communications Manager',
-        organization: 'Raavana Thalaigal trust',
+        organization: 'Raavana Thalaigal Trust',
         membershipId: 'RT009',
         membershipType: 'Staff',
         socialLinks: {
@@ -507,7 +507,7 @@ const UserGroupPage = () => {
           country: 'India'
         },
         occupation: 'Event Coordinator',
-        organization: 'Raavana Thalaigal trust',
+        organization: 'Raavana Thalaigal Trust',
         membershipId: 'RT010',
         membershipType: 'Staff',
         socialLinks: {
@@ -721,7 +721,7 @@ const UserGroupPage = () => {
           <div>
             <h1 className="text-3xl font-bold mb-2">Family</h1>
             <p className="text-gray-600">
-              Connect with all members, volunteers, and staff of Raavana Thalaigal trust
+              Connect with all members, volunteers, and staff of Raavana Thalaigal Trust
             </p>
           </div>
           

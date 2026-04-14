@@ -25,7 +25,7 @@ const ProfilePage = () => {
     id: 1,
     name: 'Rajesh Kumar',
     email: 'rajesh.kumar@email.com',
-    phone: '+91 98765 43210',
+    phone: '+91 94878 14418',
     alternatePhone: '+91 87654 32109',
     dateOfBirth: '1985-06-15',
     gender: 'Male',
@@ -43,7 +43,7 @@ const ProfilePage = () => {
     membershipType: 'Premium Member',
     membershipId: 'RTNGO2023015',
     profileImage: null,
-    bio: 'Passionate about social work and community development. Volunteering with Raavana Thalaigal trust for 2 years.',
+    bio: 'Passionate about social work and community development. Volunteering with Raavana Thalaigal Trust for 2 years.',
     interests: ['Education', 'Healthcare', 'Environment'],
     skills: ['Teaching', 'Event Management', 'Fundraising'],
     socialLinks: {

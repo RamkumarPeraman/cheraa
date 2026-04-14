@@ -138,7 +138,7 @@ const LoginPage = () => {
         role,
       });
 
-      toast.success('Registration successful! Welcome to Raavana Thalaigal trust!');
+      toast.success('Registration successful! Welcome to Raavana Thalaigal Trust!');
       navigate('/profile');
     } catch (error) {
       toast.error(error.response?.data?.message || error.message || 'Registration failed. Please try again.');
