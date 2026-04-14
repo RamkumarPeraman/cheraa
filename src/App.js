@@ -30,6 +30,8 @@ import MessengerPage from './pages/MessengerPage';
 import MyImpactPage from './pages/MyImpactPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import RolesManagementPage from './pages/RolesManagementPage';
+import OurStoryPage from './pages/OurStoryPage';
+import KeyFiguresPage from './pages/KeyFiguresPage';
 
 function AppLayout() {
   const location = useLocation();
@@ -52,6 +54,8 @@ function AppLayout() {
           <Route path="/events" element={<EventsPage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/our-story" element={<OurStoryPage />} />
+          <Route path="/key-figures" element={<KeyFiguresPage />} />
 
           {/* Protected User Routes */}
           <Route path="/profile" element={

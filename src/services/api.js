@@ -178,6 +178,24 @@ const apiService = {
     }
   },
 
+  getAdminSettings: async () => {
+    try {
+      const response = await api.get('/admin-settings');
+      return response.data;
+    } catch (error) {
+      return { success: true, data: { donationQrImage: '', bankDetails: { accountHolder: 'Partha Sarathi V', bank: 'Canara Bank', branch: 'Pattiveeranpatti', accountNo: '110301563866', ifscCode: 'CNRB0008438' } } };
+    }
+  },
+
+  updateAdminSettings: async (settingsData) => {
+    try {
+      const response = await api.put('/admin-settings', settingsData);
+      return response.data;
+    } catch (error) {
+      throwApiError(error);
+    }
+  },
+
   createPaymentOrder: async (amount, donationId) => {
     try {
       const response = await api.post('/payments/create-order', { amount, donationId });
@@ -281,6 +299,15 @@ const apiService = {
   updateVolunteerStatus: async (id, status) => {
     try {
       const response = await api.put(`/volunteers/${id}/status`, { status });
+      return response.data;
+    } catch (error) {
+      throwApiError(error);
+    }
+  },
+
+  deleteVolunteer: async (id) => {
+    try {
+      const response = await api.delete(`/volunteers/${id}`);
       return response.data;
     } catch (error) {
       throwApiError(error);

@@ -1,14 +1,46 @@
-import React, { useState } from 'react';
-import { FiHeart, FiLock, FiCreditCard, FiCalendar, FiUser } from 'react-icons/fi';
+import React, { useState, useEffect, useRef } from 'react';
+import { FiHeart, FiDownload, FiUpload, FiX, FiFilter, FiAlertCircle } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import apiService from '../services/api';
 
+const projectOptions = [
+  { value: 'general', label: 'General Fund' },
+  { value: 'education', label: 'Education for All' },
+  { value: 'women', label: 'Women Empowerment' },
+  { value: 'healthcare', label: 'Healthcare Initiative' },
+  { value: 'environment', label: 'Environmental Conservation' },
+];
+
+const predefinedAmounts = [100, 500, 1000, 2000, 5000, 10000];
+
+const defaultBank = {
+  accountHolder: 'Partha Sarathi V',
+  bank: 'Canara Bank',
+  branch: 'Pattiveeranpatti',
+  accountNo: '110301563866',
+  ifscCode: 'CNRB0008438',
+};
+
 const DonationPage = () => {
+  // Filter state
+  const [filterType, setFilterType] = useState('all');
+  const [filterProject, setFilterProject] = useState('all');
+  const [filterAmount, setFilterAmount] = useState('all');
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Admin settings
+  const [qrImage, setQrImage] = useState('');
+  const [bankDetails, setBankDetails] = useState(defaultBank);
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
+
+  // Form state
   const [donationType, setDonationType] = useState('one-time');
   const [amount, setAmount] = useState('');
   const [customAmount, setCustomAmount] = useState('');
   const [project, setProject] = useState('general');
-  const [paymentMethod, setPaymentMethod] = useState('card');
+  const [transactionId, setTransactionId] = useState('');
+  const [paymentScreenshot, setPaymentScreenshot] = useState('');
+  const [screenshotName, setScreenshotName] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -19,10 +51,20 @@ const DonationPage = () => {
     pincode: '',
     pan: '',
     anonymous: false,
+    message: '',
   });
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef(null);
 
-  const predefinedAmounts = [500, 1000, 2000, 5000, 10000];
+  useEffect(() => {
+    apiService.getAdminSettings().then((res) => {
+      if (res?.data) {
+        setQrImage(res.data.donationQrImage || '');
+        setBankDetails({ ...defaultBank, ...res.data.bankDetails });
+      }
+      setSettingsLoaded(true);
+    });
+  }, []);
 
   const handleAmountSelect = (value) => {
     setAmount(value);
@@ -36,154 +78,281 @@ const DonationPage = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+    setFormData((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+  };
+
+  const handleScreenshotChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Screenshot must be under 5MB');
+      return;
+    }
+    setScreenshotName(file.name);
+    const reader = new FileReader();
+    reader.onload = (ev) => setPaymentScreenshot(ev.target.result);
+    reader.readAsDataURL(file);
+  };
+
+  const handleDownloadQr = () => {
+    if (!qrImage) return;
+    const link = document.createElement('a');
+    link.href = qrImage;
+    link.download = 'donation-qr.png';
+    link.click();
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const donationAmount = customAmount || amount;
-    if (!donationAmount) {
-      toast.error('Please select or enter an amount');
+    if (!donationAmount || Number(donationAmount) <= 0) {
+      toast.error('Please select or enter a valid amount');
+      return;
+    }
+    if (!transactionId.trim()) {
+      toast.error('Please enter your Transaction ID');
+      return;
+    }
+    if (!paymentScreenshot) {
+      toast.error('Please upload your payment screenshot');
       return;
     }
 
     setLoading(true);
-
     try {
       const donationData = {
         type: donationType,
         amount: parseFloat(donationAmount),
         project,
-        paymentMethod,
+        paymentMethod: 'upi',
+        transactionId: transactionId.trim(),
+        paymentScreenshot,
         ...formData,
       };
 
       const response = await apiService.createDonation(donationData);
-      
+
       if (response.success) {
-        toast.success('Thank you for your donation!');
-        // Reset form
-        setDonationType('one-time');
+        toast.success('Thank you! Your donation has been submitted. Admin will verify and confirm shortly.');
         setAmount('');
         setCustomAmount('');
+        setTransactionId('');
+        setPaymentScreenshot('');
+        setScreenshotName('');
         setProject('general');
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          address: '',
-          city: '',
-          state: '',
-          pincode: '',
-          pan: '',
-          anonymous: false,
-        });
+        setDonationType('one-time');
+        setFormData({ name: '', email: '', phone: '', address: '', city: '', state: '', pincode: '', pan: '', anonymous: false, message: '' });
+        if (fileInputRef.current) fileInputRef.current.value = '';
       }
     } catch (error) {
-      toast.error('Something went wrong. Please try again.');
+      toast.error(error.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  // Filtered amount check for display (cosmetic filter on predefined amounts)
+  const getFilteredAmounts = () => {
+    if (filterAmount === 'all') return predefinedAmounts;
+    if (filterAmount === 'small') return predefinedAmounts.filter((a) => a <= 500);
+    if (filterAmount === 'medium') return predefinedAmounts.filter((a) => a > 500 && a <= 2000);
+    if (filterAmount === 'large') return predefinedAmounts.filter((a) => a > 2000);
+    return predefinedAmounts;
+  };
+
+  const currentAmount = customAmount || amount;
+
   return (
     <div className="pt-24 pb-16 min-h-screen bg-gray-50">
       <div className="container-custom">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Make a Donation</h1>
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-bold mb-4">Support Our Mission</h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Your support helps us continue our mission of empowering communities 
-            and transforming lives.
+            Your support empowers Raavana Thalaigal Trust to build a stronger, more aware Tamil youth movement.
           </p>
+        </div>
+
+        {/* Gateway Notice */}
+        <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-3 max-w-3xl mx-auto">
+          <FiAlertCircle className="text-amber-600 mt-0.5 flex-shrink-0" size={18} />
+          <p className="text-sm text-amber-800">
+            <strong>Payment Gateway Notice:</strong> Our payment gateway is under construction. Please donate by yourself using the QR code or bank details below, then submit your payment details here.
+          </p>
+        </div>
+
+        {/* Filters */}
+        <div className="mb-8 max-w-3xl mx-auto">
+          <button
+            type="button"
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:border-primary-500 hover:text-primary-600 transition-colors"
+          >
+            <FiFilter size={15} />
+            {showFilters ? 'Hide Filters' : 'Show Filters'}
+          </button>
+
+          {showFilters && (
+            <div className="mt-4 p-4 bg-white rounded-lg shadow-sm border border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Donation Type</label>
+                <select
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value)}
+                  className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary-500"
+                >
+                  <option value="all">All Types</option>
+                  <option value="one-time">One-time</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Project</label>
+                <select
+                  value={filterProject}
+                  onChange={(e) => setFilterProject(e.target.value)}
+                  className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary-500"
+                >
+                  <option value="all">All Projects</option>
+                  {projectOptions.map((p) => (
+                    <option key={p.value} value={p.value}>{p.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Amount Range</label>
+                <select
+                  value={filterAmount}
+                  onChange={(e) => setFilterAmount(e.target.value)}
+                  className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary-500"
+                >
+                  <option value="all">All Amounts</option>
+                  <option value="small">Up to ₹500</option>
+                  <option value="medium">₹501 – ₹2,000</option>
+                  <option value="large">Above ₹2,000</option>
+                </select>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Donation Form */}
           <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg p-6 md:p-8">
+            <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg p-6 md:p-8 space-y-8">
+
               {/* Donation Type */}
-              <div className="mb-8">
+              <div>
                 <h3 className="text-lg font-semibold mb-4">Donation Type</h3>
                 <div className="flex gap-4">
-                  <button
-                    type="button"
-                    onClick={() => setDonationType('one-time')}
-                    className={`flex-1 py-3 px-4 rounded-lg border-2 transition-all ${
-                      donationType === 'one-time'
-                        ? 'border-primary-600 bg-primary-50 text-primary-600'
-                        : 'border-gray-200 hover:border-primary-300'
-                    }`}
-                  >
-                    One-time
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setDonationType('monthly')}
-                    className={`flex-1 py-3 px-4 rounded-lg border-2 transition-all ${
-                      donationType === 'monthly'
-                        ? 'border-primary-600 bg-primary-50 text-primary-600'
-                        : 'border-gray-200 hover:border-primary-300'
-                    }`}
-                  >
-                    Monthly
-                  </button>
+                  {['one-time', 'monthly'].map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => { setDonationType(type); if (filterType !== 'all') setFilterType(type); }}
+                      className={`flex-1 py-3 px-4 rounded-lg border-2 capitalize transition-all ${
+                        donationType === type
+                          ? 'border-primary-600 bg-primary-50 text-primary-600'
+                          : 'border-gray-200 hover:border-primary-300'
+                      }`}
+                    >
+                      {type === 'one-time' ? 'One-time' : 'Monthly'}
+                    </button>
+                  ))}
                 </div>
               </div>
 
               {/* Amount */}
-              <div className="mb-8">
+              <div>
                 <h3 className="text-lg font-semibold mb-4">Select Amount (₹)</h3>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
-                  {predefinedAmounts.map((value) => (
+                <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-4">
+                  {getFilteredAmounts().map((value) => (
                     <button
                       key={value}
                       type="button"
                       onClick={() => handleAmountSelect(value)}
-                      className={`py-3 px-2 rounded-lg border-2 transition-all ${
+                      className={`py-3 px-2 rounded-lg border-2 transition-all text-sm font-medium ${
                         amount === value
                           ? 'border-primary-600 bg-primary-50 text-primary-600'
                           : 'border-gray-200 hover:border-primary-300'
                       }`}
                     >
-                      ₹{value}
+                      ₹{value.toLocaleString()}
                     </button>
                   ))}
                 </div>
-                <div>
-                  <input
-                    type="number"
-                    placeholder="Custom amount"
-                    value={customAmount}
-                    onChange={handleCustomAmount}
-                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none"
-                    min="1"
-                  />
-                </div>
+                <input
+                  type="number"
+                  placeholder="Custom amount (₹)"
+                  value={customAmount}
+                  onChange={handleCustomAmount}
+                  className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none"
+                  min="1"
+                />
               </div>
 
-              {/* Project Selection */}
-              <div className="mb-8">
+              {/* Project */}
+              <div>
                 <h3 className="text-lg font-semibold mb-4">Allocate to Project</h3>
                 <select
                   value={project}
                   onChange={(e) => setProject(e.target.value)}
                   className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none"
                 >
-                  <option value="general">General Fund</option>
-                  <option value="education">Education for All</option>
-                  <option value="women">Women Empowerment</option>
-                  <option value="healthcare">Healthcare Initiative</option>
-                  <option value="environment">Environmental Conservation</option>
+                  {projectOptions.map((p) => (
+                    <option key={p.value} value={p.value}>{p.label}</option>
+                  ))}
                 </select>
               </div>
 
+              {/* Bank Details */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Bank Account Details</h3>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 space-y-2 text-sm">
+                  <div><span className="font-semibold text-gray-700">Account Holder:</span> <span className="text-gray-800">{bankDetails.accountHolder}</span></div>
+                  <div><span className="font-semibold text-gray-700">Bank:</span> <span className="text-gray-800">{bankDetails.bank}</span></div>
+                  <div><span className="font-semibold text-gray-700">Branch:</span> <span className="text-gray-800">{bankDetails.branch}</span></div>
+                  <div><span className="font-semibold text-gray-700">Account Number:</span> <span className="text-gray-800 font-mono">{bankDetails.accountNo}</span></div>
+                  <div><span className="font-semibold text-gray-700">IFSC Code:</span> <span className="text-gray-800 font-mono">{bankDetails.ifscCode}</span></div>
+                </div>
+              </div>
+
+              {/* QR Code */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3">QR Code Payment</h3>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-gray-50 border border-gray-200 rounded-lg p-5">
+                  {settingsLoaded && qrImage ? (
+                    <img
+                      src={qrImage}
+                      alt="Donation QR Code"
+                      className="w-36 h-36 object-contain rounded border border-gray-200 bg-white"
+                    />
+                  ) : (
+                    <div className="w-36 h-36 bg-gray-200 rounded border border-gray-300 flex items-center justify-center">
+                      <span className="text-gray-400 text-xs text-center px-2">
+                        {settingsLoaded ? 'QR not uploaded yet' : 'Loading...'}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm text-gray-600">Scan to pay via UPI / PhonePe / GPay</p>
+                    {qrImage && (
+                      <button
+                        type="button"
+                        onClick={handleDownloadQr}
+                        className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm w-fit"
+                      >
+                        <FiDownload size={14} />
+                        Download QR Code
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               {/* Personal Information */}
-              <div className="mb-8">
+              <div>
                 <h3 className="text-lg font-semibold mb-4">Your Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <input
@@ -225,8 +394,8 @@ const DonationPage = () => {
               </div>
 
               {/* Address */}
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold mb-4">Address</h3>
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Address (Optional)</h3>
                 <div className="space-y-4">
                   <textarea
                     name="address"
@@ -235,39 +404,31 @@ const DonationPage = () => {
                     onChange={handleInputChange}
                     rows="2"
                     className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none"
-                  ></textarea>
+                  />
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <input
-                      type="text"
-                      name="city"
-                      placeholder="City"
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      className="p-3 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none"
-                    />
-                    <input
-                      type="text"
-                      name="state"
-                      placeholder="State"
-                      value={formData.state}
-                      onChange={handleInputChange}
-                      className="p-3 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none"
-                    />
-                    <input
-                      type="text"
-                      name="pincode"
-                      placeholder="Pincode"
-                      value={formData.pincode}
-                      onChange={handleInputChange}
-                      className="p-3 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none"
-                    />
+                    <input type="text" name="city" placeholder="City" value={formData.city} onChange={handleInputChange} className="p-3 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none" />
+                    <input type="text" name="state" placeholder="State" value={formData.state} onChange={handleInputChange} className="p-3 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none" />
+                    <input type="text" name="pincode" placeholder="Pincode" value={formData.pincode} onChange={handleInputChange} className="p-3 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none" />
                   </div>
                 </div>
               </div>
 
-              {/* Anonymous Option */}
-              <div className="mb-8">
-                <label className="flex items-center">
+              {/* Message */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Message (Optional)</label>
+                <textarea
+                  name="message"
+                  placeholder="Leave a message of support..."
+                  value={formData.message}
+                  onChange={handleInputChange}
+                  rows="2"
+                  className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none"
+                />
+              </div>
+
+              {/* Anonymous */}
+              <div>
+                <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
                     name="anonymous"
@@ -275,93 +436,146 @@ const DonationPage = () => {
                     onChange={handleInputChange}
                     className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
                   />
-                  <span className="ml-2 text-gray-700">
-                    I would like to donate anonymously
-                  </span>
+                  <span className="text-gray-700 text-sm">Donate anonymously</span>
                 </label>
               </div>
 
-              {/* Payment Method */}
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold mb-4">Payment Method</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {['card', 'upi', 'netbanking', 'wallet'].map((method) => (
-                    <button
-                      key={method}
-                      type="button"
-                      onClick={() => setPaymentMethod(method)}
-                      className={`py-3 px-2 rounded-lg border-2 capitalize transition-all ${
-                        paymentMethod === method
-                          ? 'border-primary-600 bg-primary-50 text-primary-600'
-                          : 'border-gray-200 hover:border-primary-300'
-                      }`}
-                    >
-                      {method}
-                    </button>
-                  ))}
-                </div>
+              {/* Transaction ID */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Transaction ID <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={transactionId}
+                  onChange={(e) => setTransactionId(e.target.value)}
+                  placeholder="Enter UPI / Bank Transaction ID"
+                  required
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
+                />
+                <p className="text-xs text-gray-400 mt-1">You'll find this in your UPI app or bank statement after payment.</p>
               </div>
 
-              {/* Submit Button */}
+              {/* Payment Screenshot */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Payment Screenshot <span className="text-red-500">*</span>
+                </label>
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors"
+                >
+                  {paymentScreenshot ? (
+                    <div className="relative inline-block">
+                      <img
+                        src={paymentScreenshot}
+                        alt="Payment screenshot preview"
+                        className="max-h-48 mx-auto rounded border border-gray-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); setPaymentScreenshot(''); setScreenshotName(''); if (fileInputRef.current) fileInputRef.current.value = ''; }}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                      >
+                        <FiX size={12} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-gray-400">
+                      <FiUpload size={28} className="mx-auto mb-2" />
+                      <p className="text-sm font-medium">Click to upload screenshot</p>
+                      <p className="text-xs mt-1">PNG, JPG up to 5MB</p>
+                    </div>
+                  )}
+                </div>
+                {screenshotName && !paymentScreenshot && (
+                  <p className="text-xs text-gray-500 mt-1">{screenshotName}</p>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleScreenshotChange}
+                  className="hidden"
+                />
+              </div>
+
+              {/* Submit */}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full btn-primary flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed py-4 text-base font-semibold"
               >
                 {loading ? (
-                  'Processing...'
+                  'Submitting...'
                 ) : (
                   <>
-                    <FiHeart className="mr-2" />
-                    Donate ₹{customAmount || amount || '0'}
+                    <FiHeart />
+                    Donate{currentAmount ? ` ₹${Number(currentAmount).toLocaleString()}` : ''}
                   </>
                 )}
               </button>
 
-              {/* Security Notice */}
-              <div className="mt-4 flex items-center justify-center text-sm text-gray-600">
-                <FiLock className="mr-2" />
-                Secure payment powered by Razorpay
-              </div>
+              <p className="text-center text-xs text-gray-400">
+                Your donation will be verified by our team and confirmed via email.
+              </p>
             </form>
           </div>
 
           {/* Sidebar */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 space-y-6">
             {/* Impact Summary */}
-            <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div className="bg-white rounded-lg shadow-lg p-6">
               <h3 className="text-lg font-semibold mb-4">Your Impact</h3>
               <div className="space-y-4">
                 <div className="flex justify-between items-center pb-4 border-b">
-                  <span className="text-gray-600">Total Raised</span>
-                  <span className="font-bold text-xl">₹15,00,000</span>
+                  <span className="text-gray-600">Lives Reached</span>
+                  <span className="font-bold text-xl">2000+</span>
                 </div>
                 <div className="flex justify-between items-center pb-4 border-b">
-                  <span className="text-gray-600">Monthly Donors</span>
-                  <span className="font-bold">250+</span>
+                  <span className="text-gray-600">Active Supporters</span>
+                  <span className="font-bold">200+</span>
                 </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span>Current Goal</span>
-                    <span className="font-semibold">₹20,00,000</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-primary-600 rounded-full h-2" style={{ width: '75%' }}></div>
-                  </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Programs Delivered</span>
+                  <span className="font-bold">25+</span>
                 </div>
               </div>
+            </div>
+
+            {/* How it works */}
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <h3 className="text-lg font-semibold mb-4">How to Donate</h3>
+              <ol className="space-y-3 text-sm text-gray-600">
+                <li className="flex gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                  <span>Transfer amount via UPI or bank transfer using the details provided</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                  <span>Fill in your personal details and enter the Transaction ID</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                  <span>Upload a screenshot of your payment confirmation</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center text-xs font-bold">4</span>
+                  <span>Submit – our team will verify and send you a confirmation</span>
+                </li>
+              </ol>
             </div>
 
             {/* Tax Benefits */}
             <div className="bg-primary-50 rounded-lg shadow-lg p-6">
               <h3 className="text-lg font-semibold mb-2 text-primary-800">Tax Benefits</h3>
-              <p className="text-primary-700 mb-4">
+              <p className="text-primary-700 mb-3 text-sm">
                 All donations are eligible for tax exemption under Section 80G of the Income Tax Act.
               </p>
-              <div className="text-sm text-primary-600">
+              <div className="text-sm text-primary-600 space-y-1">
                 <p>✓ 50% tax exemption on donation amount</p>
-                <p>✓ Instant 80G certificate</p>
-                <p>✓ Lifetime tax benefit for monthly donors</p>
+                <p>✓ 80G certificate provided</p>
+                <p>✓ Registered Trust (Reg. No: 31/25)</p>
               </div>
             </div>
           </div>

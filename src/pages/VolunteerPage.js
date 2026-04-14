@@ -193,7 +193,13 @@ const VolunteerPage = () => {
     setLoading(true);
 
     try {
-      const response = await apiService.submitVolunteerApplication(formData);
+      // Convert hearAbout array to string
+      const submitData = { ...formData };
+      if (Array.isArray(submitData.hearAbout)) {
+        submitData.hearAbout = submitData.hearAbout.filter(Boolean).join(", ");
+      }
+
+      const response = await apiService.submitVolunteerApplication(submitData);
 
       if (response.success) {
         toast.success('Thank you for applying! We will contact you soon.');

@@ -27,7 +27,7 @@ const FoundationFooter = () => {
                   <img src={ravanaLogo} alt="Raavana Thalaigal trust logo" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold md:text-2xl">Raavana Thalaigal trust Trust</h3>
+                  <h3 className="text-xl font-bold md:text-2xl">Raavana Thalaigal Trust</h3>
                   <p className="text-xs uppercase tracking-[0.16em] text-white/55">
                     Community impact platform
                   </p>
@@ -111,7 +111,7 @@ const FoundationFooter = () => {
         </div>
 
         <div className="flex flex-col gap-4 border-t border-white/10 py-6 text-sm text-white/45 md:flex-row md:items-center md:justify-between">
-          <p>&copy; {currentYear} Raavana Thalaigal trust Trust. All rights reserved.</p>
+          <p>&copy; {currentYear} Raavana Thalaigal Trust. All rights reserved.</p>
           <div className="flex gap-6">
             <Link to="/privacy" className="transition hover:text-white">
               Privacy Policy

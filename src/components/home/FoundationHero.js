@@ -54,12 +54,29 @@ const FoundationHero = () => {
             </h1>
 
             <p className="text-reveal text-reveal-delay-2 mt-6 max-w-2xl text-base leading-7 text-ink-700 md:text-lg">
-              Raavana Thalaigal trust is presented here with a warmer, mission-first experience:
-              one that puts people, participation, and long-term social impact at the
-              center of the homepage.
+              Raavana Thalaigal Trust is a student and youth-led movement built on the spirit of
+              unity, learning, growth, and social responsibility — where every young voice matters,
+              and when united, becomes a powerful force for meaningful change.
             </p>
 
-            <div className="text-reveal text-reveal-delay-3 mt-8 flex flex-col gap-4 sm:flex-row">
+            <div className="text-reveal text-reveal-delay-3 mt-5 flex flex-wrap gap-3">
+              <Link
+                to="/our-story"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-primary-400 bg-white/80 text-primary-800 text-sm font-semibold hover:bg-primary-50 transition-colors"
+              >
+                Our Story
+                <FiArrowRight size={14} />
+              </Link>
+              <Link
+                to="/key-figures"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-primary-400 bg-white/80 text-primary-800 text-sm font-semibold hover:bg-primary-50 transition-colors"
+              >
+                Key Figures
+                <FiArrowRight size={14} />
+              </Link>
+            </div>
+
+            <div className="text-reveal text-reveal-delay-3 mt-5 flex flex-col gap-4 sm:flex-row">
               <Link to="/donate" className="btn-primary group bg-primary-700 hover:bg-primary-800">
                 Support our mission
                 <FiArrowRight className="ml-2 transition-transform group-hover:translate-x-1" />
