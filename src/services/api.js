@@ -344,6 +344,15 @@ const apiService = {
     }
   },
 
+  updateVolunteer: async (id, volunteerData) => {
+    try {
+      const response = await api.put(`/volunteers/${id}`, volunteerData);
+      return response.data;
+    } catch (error) {
+      throwApiError(error);
+    }
+  },
+
   updateVolunteerStatus: async (id, status) => {
     try {
       const response = await api.put(`/volunteers/${id}/status`, { status });

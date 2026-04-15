@@ -37,6 +37,48 @@ const createInitialFormData = () => ({
   agreeDeclaration: false,
 });
 
+const isBlank = (value) => !value || !value.toString().trim();
+
+const getPageValidationMessage = (page, formData) => {
+  if (page === 1) {
+    if (isBlank(formData.fullName)) return 'Please enter your full name.';
+    if (isBlank(formData.email)) return 'Please enter your email address.';
+    if (isBlank(formData.address)) return 'Please enter your address.';
+    if (isBlank(formData.phone)) return 'Please enter your phone number.';
+    if (isBlank(formData.gender)) return 'Please select your gender.';
+    if (isBlank(formData.dateOfBirth)) return 'Please select your date of birth.';
+    if (isBlank(formData.education)) return 'Please select your educational qualification.';
+    if (formData.education === 'Other' && isBlank(formData.educationOther)) return 'Please specify your educational qualification.';
+    if (isBlank(formData.occupation)) return 'Please select your occupation.';
+    if (formData.occupation === 'Other' && isBlank(formData.occupationOther)) return 'Please specify your occupation.';
+  }
+
+  if (page === 2) {
+    if (!Array.isArray(formData.hearAbout) || formData.hearAbout.length === 0) return 'Please tell us how you heard about this drive.';
+    if (formData.hearAbout.includes('Other') && isBlank(formData.hearAboutOther)) return 'Please specify how you heard about this drive.';
+    if (isBlank(formData.motivation)) return 'Please tell us why you want to participate in this volunteer drive.';
+    if (isBlank(formData.previousVolunteer)) return 'Please tell us about your previous volunteer activities.';
+    if (!Array.isArray(formData.capacity) || formData.capacity.length === 0) return 'Please select how you would like to be involved.';
+    if (formData.capacity.includes('Other') && isBlank(formData.capacityOther)) return 'Please specify how you would like to be involved.';
+    if (!Array.isArray(formData.skills) || formData.skills.length === 0) return 'Please select at least one skill or area of interest.';
+    if (formData.skills.includes('Other') && isBlank(formData.skillsOther)) return 'Please specify your other skill or area of interest.';
+  }
+
+  if (page === 3) {
+    if (isBlank(formData.corePurpose)) return 'Please share the purpose that drives you every day.';
+    if (isBlank(formData.newLaw)) return 'Please answer the question about the new law you would create.';
+    if (isBlank(formData.viewOnSociety)) return 'Please share your point of view about today\'s society.';
+    if (isBlank(formData.leadershipAction)) return 'Please tell us what action you would take as a leader.';
+    if (isBlank(formData.dailyHabit)) return 'Please tell us the daily habit you believe can create change.';
+  }
+
+  if (page === 4 && (!formData.agreeConduct || !formData.agreeDeclaration)) {
+    return 'Please agree to both declarations before submitting.';
+  }
+
+  return '';
+};
+
 const renderTextWithLinks = (text) => {
   if (!text) {
     return null;
@@ -182,12 +224,33 @@ const VolunteerPage = () => {
     }
   };
 
+  const validatePage = (page) => {
+    const message = getPageValidationMessage(page, formData);
+
+    if (message) {
+      toast.error(message);
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleNextPage = (nextPage) => {
+    if (validatePage(formPage)) {
+      setFormPage(nextPage);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.agreeConduct || !formData.agreeDeclaration) {
-      toast.error('Please agree to both declarations before submitting.');
-      return;
+    for (let page = 1; page <= 4; page += 1) {
+      const message = getPageValidationMessage(page, formData);
+      if (message) {
+        setFormPage(page);
+        toast.error(message);
+        return;
+      }
     }
 
     setLoading(true);
@@ -449,7 +512,7 @@ const VolunteerPage = () => {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Name of Institution / College (if applicable)</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Name of Institution / College</label>
                       <input type="text" name="institution" value={formData.institution} onChange={handleInputChange} className="w-full p-3 border border-gray-300 rounded-lg focus:border-primary-500 focus:outline-none" />
                     </div>
                     <div>
@@ -470,7 +533,7 @@ const VolunteerPage = () => {
                     </div>
                   </div>
                   <div className="flex justify-end mt-8 gap-3">
-                    <button type="button" onClick={() => setFormPage(2)} className="btn-primary px-8">Next</button>
+                    <button type="button" onClick={() => handleNextPage(2)} className="btn-primary px-8">Next</button>
                   </div>
                 </div>
               )}
@@ -501,11 +564,11 @@ const VolunteerPage = () => {
                       <textarea name="motivation" value={formData.motivation} onChange={handleInputChange} required rows="4" className="w-full p-3 border border-gray-300 rounded-lg focus:border-primary-500 focus:outline-none"></textarea>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Have you previously participated in any volunteer activities? Say about that.</label>
-                      <textarea name="previousVolunteer" value={formData.previousVolunteer} onChange={handleInputChange} rows="4" className="w-full p-3 border border-gray-300 rounded-lg focus:border-primary-500 focus:outline-none"></textarea>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Have you previously participated in any volunteer activities? Say about that. *</label>
+                      <textarea name="previousVolunteer" value={formData.previousVolunteer} onChange={handleInputChange} required rows="4" className="w-full p-3 border border-gray-300 rounded-lg focus:border-primary-500 focus:outline-none"></textarea>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">In what capacity would you like to be involved? (You may select more than one)</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">In what capacity would you like to be involved? (You may select more than one) *</label>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {capacityOptions.map((opt) => (
                           <label key={opt} className="flex items-center space-x-2">
@@ -521,7 +584,7 @@ const VolunteerPage = () => {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">What are your key skills or areas of interest? (You may select more than one)</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">What are your key skills or areas of interest? (You may select more than one) *</label>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {skillOptions.map((skill) => (
                           <label key={skill} className="flex items-center space-x-2">
@@ -539,7 +602,7 @@ const VolunteerPage = () => {
                   </div>
                   <div className="flex justify-between mt-8">
                     <button type="button" onClick={() => setFormPage(1)} className="btn-secondary px-8">Previous</button>
-                    <button type="button" onClick={() => setFormPage(3)} className="btn-primary px-8">Next</button>
+                    <button type="button" onClick={() => handleNextPage(3)} className="btn-primary px-8">Next</button>
                   </div>
                 </div>
               )}
@@ -573,7 +636,7 @@ const VolunteerPage = () => {
                   </div>
                   <div className="flex justify-between mt-8">
                     <button type="button" onClick={() => setFormPage(2)} className="btn-secondary px-8">Previous</button>
-                    <button type="button" onClick={() => setFormPage(4)} className="btn-primary px-8">Next</button>
+                    <button type="button" onClick={() => handleNextPage(4)} className="btn-primary px-8">Next</button>
                   </div>
                 </div>
               )}

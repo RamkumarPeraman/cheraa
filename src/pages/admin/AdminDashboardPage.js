@@ -132,6 +132,212 @@ const PreviewImage = ({ src, fallbackSrc, alt, className }) => {
   );
 };
 
+const VOLUNTEER_FIELD_LABELS = {
+  fullName: 'Full Name',
+  email: 'Email',
+  address: 'Address',
+  phone: 'Phone Number',
+  gender: 'Gender',
+  dateOfBirth: 'Date of Birth',
+  education: 'Educational Qualification',
+  educationOther: 'Educational Qualification',
+  institution: 'Name of Institution / College',
+  occupation: 'Occupation',
+  hearAbout: 'How did you hear about this drive?',
+  hearAboutOther: 'How did you hear about this drive?',
+  motivation: 'Why do you want to participate in this Volunteer Drive?',
+  previousVolunteer: 'Have you previously participated in any volunteer activities? Say about that.',
+  skills: 'What are your key skills or areas of interest?',
+  skillsOther: 'Key Skills / Areas of Interest',
+  capacity: 'In what capacity would you like to be involved?',
+  capacityOther: 'Capacity',
+  corePurpose: 'In one powerful line, tell us the purpose that drives you every day?',
+  newLaw: "If you had the power to create one new law for India — one that doesn't exist yet — what law would you bring, and why?",
+  viewOnSociety: "What is your point of view about today's society around you?",
+  leadershipAction: 'If you were chosen as a leader, what is the action you would take to create a change?',
+  dailyHabit: 'What is one tiny daily habit that you believe can create a massive change in society if everyone practices it?',
+  city: 'City',
+  state: 'State',
+  pincode: 'Pincode',
+  occupationOther: 'Occupation Other',
+  interests: 'Interests',
+  availability: 'Availability',
+  hoursPerWeek: 'Hours Per Week',
+  experience: 'Experience',
+  emergencyContact: 'Emergency Contact',
+  selectedOpportunityId: 'Selected Opportunity ID',
+  selectedOpportunityTitle: 'Selected Opportunity Title',
+  agreeConduct: 'Agreed To Conduct',
+  agreeDeclaration: 'Agreed To Declaration',
+  status: 'Status',
+  createdAt: 'Applied On',
+  updatedAt: 'Updated On',
+};
+
+const VOLUNTEER_PRIMARY_FIELDS = [
+  'fullName',
+  'email',
+  'address',
+  'phone',
+  'gender',
+  'dateOfBirth',
+  'education',
+  'educationOther',
+  'institution',
+  'occupation',
+  'occupationOther',
+  'hearAbout',
+  'hearAboutOther',
+  'motivation',
+  'previousVolunteer',
+  'skills',
+  'skillsOther',
+  'capacity',
+  'capacityOther',
+  'corePurpose',
+  'newLaw',
+  'viewOnSociety',
+  'leadershipAction',
+  'dailyHabit',
+  'interests',
+  'city',
+  'state',
+  'pincode',
+  'availability',
+  'hoursPerWeek',
+  'experience',
+  'emergencyContact',
+  'selectedOpportunityId',
+  'selectedOpportunityTitle',
+  'agreeConduct',
+  'agreeDeclaration',
+  'status',
+  'createdAt',
+  'updatedAt',
+];
+
+const VOLUNTEER_EXCLUDED_FIELDS = new Set(['_id', 'id', '__v', 'passwordHash']);
+const VOLUNTEER_BOOLEAN_FIELDS = new Set(['agreeConduct', 'agreeDeclaration']);
+const VOLUNTEER_ARRAY_FIELDS = new Set(['interests', 'skills', 'capacity']);
+const VOLUNTEER_OBJECT_FIELDS = new Set(['availability', 'emergencyContact']);
+
+const normalizeVolunteerRecord = (volunteer = {}) => ({
+  ...volunteer,
+  id: volunteer.id || volunteer._id,
+});
+
+const getVolunteerFieldList = (volunteer = {}) => {
+  const extraFields = Object.keys(volunteer || {}).filter(
+    (key) => !VOLUNTEER_EXCLUDED_FIELDS.has(key) && !VOLUNTEER_PRIMARY_FIELDS.includes(key)
+  );
+
+  return [...VOLUNTEER_PRIMARY_FIELDS, ...extraFields].filter(
+    (key) => !VOLUNTEER_EXCLUDED_FIELDS.has(key)
+  );
+};
+
+const formatVolunteerFieldValue = (value, key) => {
+  if (value === null || value === undefined || value === '') {
+    return '-';
+  }
+
+  if ((key === 'createdAt' || key === 'updatedAt' || key === 'dateOfBirth') && value) {
+    const date = new Date(value);
+    if (!Number.isNaN(date.getTime())) {
+      return date.toLocaleString('en-IN');
+    }
+  }
+
+  if (typeof value === 'boolean') {
+    return value ? 'Yes' : 'No';
+  }
+
+  if (Array.isArray(value)) {
+    return value.length ? value.join(', ') : '-';
+  }
+
+  if (typeof value === 'object') {
+    return Object.entries(value)
+      .filter(([, nestedValue]) => nestedValue !== null && nestedValue !== undefined && nestedValue !== '')
+      .map(([nestedKey, nestedValue]) => `${VOLUNTEER_FIELD_LABELS[nestedKey] || nestedKey}: ${nestedValue}`)
+      .join(', ') || '-';
+  }
+
+  return String(value);
+};
+
+const getVolunteerInputType = (key, value) => {
+  if (key === 'status') {
+    return 'select';
+  }
+
+  if (typeof value === 'boolean') {
+    return 'checkbox';
+  }
+
+  if (Array.isArray(value) || typeof value === 'object') {
+    return 'textarea';
+  }
+
+  if (key === 'email') {
+    return 'email';
+  }
+
+  if (key === 'dateOfBirth') {
+    return 'date';
+  }
+
+  const longTextFields = new Set([
+    'address', 'motivation', 'previousVolunteer', 'experience', 'corePurpose',
+    'newLaw', 'viewOnSociety', 'leadershipAction', 'dailyHabit',
+  ]);
+
+  return longTextFields.has(key) ? 'textarea' : 'text';
+};
+
+const stringifyVolunteerFieldValue = (value) => {
+  if (value === null || value === undefined) {
+    return '';
+  }
+
+  if (typeof value === 'boolean') {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.join(', ');
+  }
+
+  if (typeof value === 'object') {
+    return JSON.stringify(value, null, 2);
+  }
+
+  return String(value);
+};
+
+const parseVolunteerFieldValue = (rawValue, sourceValue, key) => {
+  if (VOLUNTEER_BOOLEAN_FIELDS.has(key) || typeof sourceValue === 'boolean') {
+    return Boolean(rawValue);
+  }
+
+  if (VOLUNTEER_ARRAY_FIELDS.has(key) || Array.isArray(sourceValue)) {
+    return String(rawValue)
+      .split(',')
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+  }
+
+  if (VOLUNTEER_OBJECT_FIELDS.has(key) || (sourceValue && typeof sourceValue === 'object')) {
+    try {
+      return rawValue ? JSON.parse(rawValue) : {};
+    } catch (error) {
+      throw new Error(`Invalid JSON in ${VOLUNTEER_FIELD_LABELS[key] || key}.`);
+    }
+  }
+
+  return rawValue;
+};
+
 const AdminDashboardPage = () => {
   const [activeTab, setActiveTab] = useState('projects');
   const [itemsByType, setItemsByType] = useState({
@@ -146,6 +352,10 @@ const AdminDashboardPage = () => {
   const [volunteerFilter, setVolunteerFilter] = useState('all');
   const [donationStatusFilter, setDonationStatusFilter] = useState('all');
   const [screenshotModal, setScreenshotModal] = useState(null);
+  const [volunteerModalMode, setVolunteerModalMode] = useState(null);
+  const [selectedVolunteer, setSelectedVolunteer] = useState(null);
+  const [volunteerFormData, setVolunteerFormData] = useState({});
+  const [volunteerModalLoading, setVolunteerModalLoading] = useState(false);
 
   // Donation Settings state
   const [settingsLoading, setSettingsLoading] = useState(false);
@@ -336,6 +546,54 @@ const AdminDashboardPage = () => {
   const handleAdd = () => { setSelectedItem(null); setShowPopup(true); };
   const handleEdit = (item) => { setSelectedItem(item); setShowPopup(true); };
 
+  const updateVolunteerInState = (updatedVolunteer) => {
+    const normalizedVolunteer = normalizeVolunteerRecord(updatedVolunteer);
+    setItemsByType((prev) => ({
+      ...prev,
+      volunteerApplications: prev.volunteerApplications.map((volunteer) =>
+        (volunteer._id || volunteer.id) === normalizedVolunteer.id
+          ? { ...volunteer, ...normalizedVolunteer }
+          : volunteer
+      ),
+    }));
+    setSelectedVolunteer(normalizedVolunteer);
+  };
+
+  const closeVolunteerModal = () => {
+    if (volunteerModalLoading) return;
+    setVolunteerModalMode(null);
+    setSelectedVolunteer(null);
+    setVolunteerFormData({});
+  };
+
+  const openVolunteerModal = async (volunteer, mode) => {
+    const volunteerId = volunteer._id || volunteer.id;
+    if (!volunteerId) {
+      toast.error('Volunteer record is missing an id');
+      return;
+    }
+
+    setVolunteerModalMode(mode);
+    setVolunteerModalLoading(true);
+
+    try {
+      const response = await apiService.getVolunteerProfile(volunteerId);
+      const volunteerData = normalizeVolunteerRecord(response?.data || volunteer);
+      setSelectedVolunteer(volunteerData);
+      setVolunteerFormData(
+        getVolunteerFieldList(volunteerData).reduce((acc, key) => {
+          acc[key] = stringifyVolunteerFieldValue(volunteerData[key]);
+          return acc;
+        }, {})
+      );
+    } catch (error) {
+      toast.error(error.message || 'Failed to load volunteer details');
+      setVolunteerModalMode(null);
+    } finally {
+      setVolunteerModalLoading(false);
+    }
+  };
+
   const handleDelete = async (item) => {
     const label = popupType === 'volunteer' ? 'volunteer opportunity' : popupType;
     if (!window.confirm(`Are you sure you want to delete this ${label}?`)) return;
@@ -356,12 +614,7 @@ const AdminDashboardPage = () => {
   const handleAcceptVolunteer = async (volunteer) => {
     try {
       await apiService.updateVolunteerStatus(volunteer._id || volunteer.id, 'approved');
-      setItemsByType((prev) => ({
-        ...prev,
-        volunteerApplications: prev.volunteerApplications.map((v) =>
-          (v._id || v.id) === (volunteer._id || volunteer.id) ? { ...v, status: 'approved' } : v
-        ),
-      }));
+      updateVolunteerInState({ ...volunteer, status: 'approved' });
       toast.success(`${volunteer.fullName} has been accepted`);
     } catch (error) {
       toast.error('Failed to accept volunteer');
@@ -369,16 +622,66 @@ const AdminDashboardPage = () => {
   };
 
   const handleRejectVolunteer = async (volunteer) => {
-    if (!window.confirm(`Reject and remove ${volunteer.fullName}? This cannot be undone.`)) return;
+    try {
+      await apiService.updateVolunteerStatus(volunteer._id || volunteer.id, 'rejected');
+      updateVolunteerInState({ ...volunteer, status: 'rejected' });
+      toast.success(`${volunteer.fullName} has been rejected`);
+    } catch (error) {
+      toast.error('Failed to reject volunteer');
+    }
+  };
+
+  const handleDeleteVolunteer = async (volunteer) => {
+    if (!window.confirm(`Delete ${volunteer.fullName} from the volunteer applications table?`)) return;
+
     try {
       await apiService.deleteVolunteer(volunteer._id || volunteer.id);
       setItemsByType((prev) => ({
         ...prev,
         volunteerApplications: prev.volunteerApplications.filter((v) => (v._id || v.id) !== (volunteer._id || volunteer.id)),
       }));
-      toast.success(`${volunteer.fullName} has been rejected and removed`);
+      if ((selectedVolunteer?._id || selectedVolunteer?.id) === (volunteer._id || volunteer.id)) {
+        closeVolunteerModal();
+      }
+      toast.success(`${volunteer.fullName} has been deleted`);
     } catch (error) {
-      toast.error('Failed to reject volunteer');
+      toast.error(error.message || 'Failed to delete volunteer');
+    }
+  };
+
+  const handleVolunteerFieldChange = (key, value) => {
+    setVolunteerFormData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleSaveVolunteerEdit = async () => {
+    if (!selectedVolunteer) return;
+
+    setVolunteerModalLoading(true);
+    try {
+      const payload = getVolunteerFieldList(selectedVolunteer).reduce((acc, key) => {
+        if (key === 'createdAt' || key === 'updatedAt') {
+          return acc;
+        }
+
+        acc[key] = parseVolunteerFieldValue(volunteerFormData[key], selectedVolunteer[key], key);
+        return acc;
+      }, {});
+
+      const response = await apiService.updateVolunteer(selectedVolunteer.id || selectedVolunteer._id, payload);
+      const updatedVolunteer = normalizeVolunteerRecord(response?.data || payload);
+      updateVolunteerInState(updatedVolunteer);
+      setVolunteerFormData(
+        getVolunteerFieldList(updatedVolunteer).reduce((acc, key) => {
+          acc[key] = stringifyVolunteerFieldValue(updatedVolunteer[key]);
+          return acc;
+        }, {})
+      );
+      setVolunteerModalMode('view');
+      toast.success('Volunteer details updated successfully');
+    } catch (error) {
+      toast.error(error.message || 'Failed to update volunteer');
+    } finally {
+      setVolunteerModalLoading(false);
     }
   };
 
@@ -501,6 +804,7 @@ const AdminDashboardPage = () => {
   };
 
   const isSpecialTab = ['volunteerApplications', 'donations', 'donationSettings', 'homepageCarousel'].includes(activeTab);
+  const selectedVolunteerFields = selectedVolunteer ? getVolunteerFieldList(selectedVolunteer) : [];
 
   const renderDashboardTabs = () => (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -884,6 +1188,7 @@ const AdminDashboardPage = () => {
                 <option value="all">All Status</option>
                 <option value="pending">Pending</option>
                 <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
               </select>
             )}
             {activeTab === 'donations' && (
@@ -899,11 +1204,12 @@ const AdminDashboardPage = () => {
 
         {/* Stats */}
         {activeTab === 'volunteerApplications' && !loading && (
-          <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             {[
               { label: 'Total Applications', value: items.length, color: 'bg-blue-50 text-blue-700' },
               { label: 'Pending', value: items.filter((v) => v.status === 'pending').length, color: 'bg-yellow-50 text-yellow-700' },
               { label: 'Approved', value: items.filter((v) => v.status === 'approved').length, color: 'bg-green-50 text-green-700' },
+              { label: 'Rejected', value: items.filter((v) => v.status === 'rejected').length, color: 'bg-red-50 text-red-700' },
             ].map((stat) => (
               <div key={stat.label} className={`rounded-lg p-4 ${stat.color}`}>
                 <div className="text-2xl font-bold">{stat.value}</div>
@@ -994,13 +1300,19 @@ const AdminDashboardPage = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         {activeTab === 'volunteerApplications' ? (
                           <div className="flex items-center justify-end space-x-2">
-                            {item.status !== 'approved' && (
-                              <button onClick={() => handleAcceptVolunteer(item)} className="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 text-xs font-medium">
-                                <FiCheck size={14} /> Accept
-                              </button>
-                            )}
-                            <button onClick={() => handleRejectVolunteer(item)} className="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 text-xs font-medium">
-                              <FiX size={14} /> Reject
+                            <button
+                              onClick={() => openVolunteerModal(item, 'view')}
+                              className="flex items-center gap-1 px-3 py-1 bg-sky-100 text-sky-700 rounded-lg hover:bg-sky-200 text-xs font-medium"
+                              title="View volunteer details"
+                            >
+                              <FiEye size={14} /> View
+                            </button>
+                            <button
+                              onClick={() => handleDeleteVolunteer(item)}
+                              className="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 text-xs font-medium"
+                              title="Delete volunteer"
+                            >
+                              <FiTrash2 size={14} /> Delete
                             </button>
                           </div>
                         ) : activeTab === 'donations' ? (
@@ -1052,6 +1364,153 @@ const AdminDashboardPage = () => {
             onClose={() => { if (!saving) { setShowPopup(false); setSelectedItem(null); } }}
             onSave={handleSave}
           />
+        )}
+
+        {volunteerModalMode && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+            onClick={closeVolunteerModal}
+          >
+            <div
+              className="max-h-[90vh] w-full max-w-5xl overflow-hidden rounded-2xl bg-white shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between border-b border-gray-200 px-6 py-4">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">
+                    {volunteerModalMode === 'edit' ? 'Edit Volunteer Application' : 'View Volunteer Application'}
+                  </h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    {selectedVolunteer?.fullName || 'Volunteer details'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={closeVolunteerModal}
+                  className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                >
+                  <FiX size={18} />
+                </button>
+              </div>
+
+              <div className="max-h-[calc(90vh-150px)] overflow-y-auto px-6 py-5">
+                {volunteerModalLoading && !selectedVolunteer ? (
+                  <div className="flex h-48 items-center justify-center">
+                    <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-primary-600"></div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                    {selectedVolunteerFields.map((field) => {
+                      const inputType = getVolunteerInputType(field, selectedVolunteer?.[field]);
+                      const isFullWidth = inputType === 'textarea';
+                      const label = VOLUNTEER_FIELD_LABELS[field] || field.replace(/([A-Z])/g, ' $1').trim();
+
+                      return (
+                        <div key={field} className={isFullWidth ? 'md:col-span-2' : ''}>
+                          <label className="mb-1 block text-sm font-semibold text-gray-700">{label}</label>
+
+                          {volunteerModalMode === 'edit' && field !== 'createdAt' && field !== 'updatedAt' ? (
+                            inputType === 'checkbox' ? (
+                              <label className="flex items-center gap-3 rounded-lg border border-gray-200 px-4 py-3 text-sm text-gray-700">
+                                <input
+                                  type="checkbox"
+                                  checked={Boolean(volunteerFormData[field])}
+                                  onChange={(e) => handleVolunteerFieldChange(field, e.target.checked)}
+                                  className="h-4 w-4 rounded border-gray-300 text-primary-600"
+                                />
+                                <span>{label}</span>
+                              </label>
+                            ) : inputType === 'select' ? (
+                              <select
+                                value={volunteerFormData[field] || 'pending'}
+                                onChange={(e) => handleVolunteerFieldChange(field, e.target.value)}
+                                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary-500 focus:outline-none"
+                              >
+                                <option value="pending">Pending</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
+                              </select>
+                            ) : inputType === 'textarea' ? (
+                              <textarea
+                                rows={field === 'availability' || typeof selectedVolunteer?.[field] === 'object' ? 5 : 4}
+                                value={volunteerFormData[field] || ''}
+                                onChange={(e) => handleVolunteerFieldChange(field, e.target.value)}
+                                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary-500 focus:outline-none"
+                              />
+                            ) : (
+                              <input
+                                type={inputType}
+                                value={volunteerFormData[field] || ''}
+                                onChange={(e) => handleVolunteerFieldChange(field, e.target.value)}
+                                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary-500 focus:outline-none"
+                              />
+                            )
+                          ) : (
+                            <div className="min-h-[48px] rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700 whitespace-pre-wrap break-words">
+                              {formatVolunteerFieldValue(selectedVolunteer?.[field], field)}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-3 border-t border-gray-200 px-6 py-4 md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-wrap items-center gap-2">
+                  {volunteerModalMode === 'view' && selectedVolunteer && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => handleAcceptVolunteer(selectedVolunteer)}
+                        disabled={volunteerModalLoading || selectedVolunteer.status === 'approved'}
+                        className="inline-flex items-center gap-2 rounded-lg bg-green-100 px-4 py-2 text-sm font-semibold text-green-700 hover:bg-green-200 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        <FiCheck size={14} /> Accept
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRejectVolunteer(selectedVolunteer)}
+                        disabled={volunteerModalLoading || selectedVolunteer.status === 'rejected'}
+                        className="inline-flex items-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        <FiX size={14} /> Reject
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 md:justify-end">
+                  {volunteerModalMode === 'view' ? (
+                    <button
+                      type="button"
+                      onClick={() => setVolunteerModalMode('edit')}
+                      className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                    >
+                      <FiEdit2 size={14} /> Edit Details
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleSaveVolunteerEdit}
+                      disabled={volunteerModalLoading}
+                      className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {volunteerModalLoading ? 'Saving...' : 'Save Changes'}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={closeVolunteerModal}
+                    className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Screenshot Modal */}
