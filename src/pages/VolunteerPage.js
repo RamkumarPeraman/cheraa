@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FiUser, FiMail, FiPhone, FiMapPin, FiCalendar, FiHeart, FiClock, FiAward, FiCheckCircle } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import apiService from '../services/api';
@@ -127,6 +127,7 @@ const VolunteerPage = () => {
   const [activeTab, setActiveTab] = useState('apply');
   const [loading, setLoading] = useState(false);
   const [opportunities, setOpportunities] = useState([]);
+  const formSectionRef = useRef(null);
 
   const [formPage, setFormPage] = useState(1);
 
@@ -176,6 +177,18 @@ const VolunteerPage = () => {
 
     loadOpportunities();
   }, []);
+
+  useEffect(() => {
+    if (activeTab !== 'apply') {
+      return;
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      scrollToFormTop();
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, [activeTab, formPage]);
 
   // Testimonials
   const volunteerTestimonials = [
@@ -235,10 +248,32 @@ const VolunteerPage = () => {
     return true;
   };
 
+  const scrollToFormTop = () => {
+    if (formSectionRef.current) {
+      const headerOffset = 88;
+      const formTop = formSectionRef.current.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: Math.max(formTop, 0),
+        behavior: 'smooth',
+      });
+
+      return;
+    }
+
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   const handleNextPage = (nextPage) => {
     if (validatePage(formPage)) {
       setFormPage(nextPage);
     }
+  };
+
+  const handlePreviousPage = (previousPage) => {
+    setFormPage(previousPage);
   };
 
   const handleSubmit = async (e) => {
@@ -429,7 +464,7 @@ const VolunteerPage = () => {
 
         {/* Application Form Tab */}
         {activeTab === 'apply' && (
-          <div>
+          <div ref={formSectionRef}>
             <h2 className="text-2xl font-bold mb-2">Volunteer Application Form</h2>
             {formData.selectedOpportunityTitle && (
               <p className="mb-4 text-sm text-primary-700">
@@ -601,7 +636,7 @@ const VolunteerPage = () => {
                     </div>
                   </div>
                   <div className="flex justify-between mt-8">
-                    <button type="button" onClick={() => setFormPage(1)} className="btn-secondary px-8">Previous</button>
+                    <button type="button" onClick={() => handlePreviousPage(1)} className="btn-secondary px-8">Previous</button>
                     <button type="button" onClick={() => handleNextPage(3)} className="btn-primary px-8">Next</button>
                   </div>
                 </div>
@@ -635,7 +670,7 @@ const VolunteerPage = () => {
                     </div>
                   </div>
                   <div className="flex justify-between mt-8">
-                    <button type="button" onClick={() => setFormPage(2)} className="btn-secondary px-8">Previous</button>
+                    <button type="button" onClick={() => handlePreviousPage(2)} className="btn-secondary px-8">Previous</button>
                     <button type="button" onClick={() => handleNextPage(4)} className="btn-primary px-8">Next</button>
                   </div>
                 </div>
@@ -660,7 +695,7 @@ const VolunteerPage = () => {
                     </label>
                   </div>
                   <div className="flex justify-between mt-8">
-                    <button type="button" onClick={() => setFormPage(3)} className="btn-secondary px-8">Previous</button>
+                    <button type="button" onClick={() => handlePreviousPage(3)} className="btn-secondary px-8">Previous</button>
                     <button type="submit" disabled={loading || !formData.agreeConduct || !formData.agreeDeclaration} className="btn-primary px-8 disabled:opacity-50 disabled:cursor-not-allowed">
                       {loading ? 'Submitting...' : 'Submit'}
                     </button>

@@ -219,6 +219,24 @@ const apiService = {
     }
   },
 
+  updateDonation: async (id, donationData) => {
+    try {
+      const response = await api.put(`/donations/${id}`, donationData);
+      return response.data;
+    } catch (error) {
+      throwApiError(error);
+    }
+  },
+
+  deleteDonation: async (id) => {
+    try {
+      const response = await api.delete(`/donations/${id}`);
+      return response.data;
+    } catch (error) {
+      throwApiError(error);
+    }
+  },
+
   getAdminSettings: async () => {
     try {
       const response = await api.get('/admin-settings');

@@ -33,12 +33,23 @@ import RolesManagementPage from './pages/RolesManagementPage';
 import OurStoryPage from './pages/OurStoryPage';
 import KeyFiguresPage from './pages/KeyFiguresPage';
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [pathname]);
+
+  return null;
+}
+
 function AppLayout() {
   const location = useLocation();
   const hideFooter = location.pathname === '/messages';
 
   return (
     <div className="min-h-screen flex flex-col">
+      <ScrollToTop />
       <Header />
       <main className="flex-grow">
         <Routes>

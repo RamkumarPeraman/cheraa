@@ -220,6 +220,22 @@ const VOLUNTEER_EXCLUDED_FIELDS = new Set(['_id', 'id', '__v', 'passwordHash']);
 const VOLUNTEER_BOOLEAN_FIELDS = new Set(['agreeConduct', 'agreeDeclaration']);
 const VOLUNTEER_ARRAY_FIELDS = new Set(['interests', 'skills', 'capacity']);
 const VOLUNTEER_OBJECT_FIELDS = new Set(['availability', 'emergencyContact']);
+const DONATION_EDIT_FIELDS = [
+  { key: 'name', label: 'Donor Name', type: 'text', required: true },
+  { key: 'email', label: 'Email', type: 'email', required: true },
+  { key: 'phone', label: 'Phone', type: 'text', required: true },
+  { key: 'amount', label: 'Amount (INR)', type: 'number', required: true },
+  { key: 'type', label: 'Donation Type', type: 'select', options: ['one-time', 'monthly'] },
+  { key: 'project', label: 'Project', type: 'text' },
+  { key: 'paymentStatus', label: 'Payment Status', type: 'select', options: ['pending', 'accepted', 'rejected', 'completed', 'failed'] },
+  { key: 'transactionId', label: 'Transaction ID', type: 'text' },
+  { key: 'paymentMethod', label: 'Payment Method', type: 'text' },
+  { key: 'pan', label: 'PAN', type: 'text' },
+  { key: 'city', label: 'City', type: 'text' },
+  { key: 'state', label: 'State', type: 'text' },
+  { key: 'address', label: 'Address', type: 'textarea' },
+  { key: 'message', label: 'Message', type: 'textarea' },
+];
 
 const normalizeVolunteerRecord = (volunteer = {}) => ({
   ...volunteer,
@@ -356,6 +372,10 @@ const AdminDashboardPage = () => {
   const [selectedVolunteer, setSelectedVolunteer] = useState(null);
   const [volunteerFormData, setVolunteerFormData] = useState({});
   const [volunteerModalLoading, setVolunteerModalLoading] = useState(false);
+  const [donationModalOpen, setDonationModalOpen] = useState(false);
+  const [selectedDonation, setSelectedDonation] = useState(null);
+  const [donationFormData, setDonationFormData] = useState({});
+  const [donationModalLoading, setDonationModalLoading] = useState(false);
 
   // Donation Settings state
   const [settingsLoading, setSettingsLoading] = useState(false);
@@ -545,6 +565,32 @@ const AdminDashboardPage = () => {
 
   const handleAdd = () => { setSelectedItem(null); setShowPopup(true); };
   const handleEdit = (item) => { setSelectedItem(item); setShowPopup(true); };
+  const openDonationModal = (donation) => {
+    setSelectedDonation(donation);
+    setDonationFormData({
+      name: donation.name || '',
+      email: donation.email || '',
+      phone: donation.phone || '',
+      amount: donation.amount || '',
+      type: donation.type || 'one-time',
+      project: donation.project || 'general',
+      paymentStatus: donation.paymentStatus || 'pending',
+      transactionId: donation.transactionId || '',
+      paymentMethod: donation.paymentMethod || '',
+      pan: donation.pan || '',
+      city: donation.city || '',
+      state: donation.state || '',
+      address: donation.address || '',
+      message: donation.message || '',
+    });
+    setDonationModalOpen(true);
+  };
+  const closeDonationModal = () => {
+    if (donationModalLoading) return;
+    setDonationModalOpen(false);
+    setSelectedDonation(null);
+    setDonationFormData({});
+  };
 
   const updateVolunteerInState = (updatedVolunteer) => {
     const normalizedVolunteer = normalizeVolunteerRecord(updatedVolunteer);
@@ -646,6 +692,60 @@ const AdminDashboardPage = () => {
       toast.success(`${volunteer.fullName} has been deleted`);
     } catch (error) {
       toast.error(error.message || 'Failed to delete volunteer');
+    }
+  };
+
+  const handleDonationFieldChange = (field, value) => {
+    setDonationFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSaveDonationEdit = async () => {
+    if (!selectedDonation) return;
+
+    if (!donationFormData.name || !donationFormData.email || !donationFormData.phone || !donationFormData.amount) {
+      toast.error('Please fill donor name, email, phone, and amount');
+      return;
+    }
+
+    setDonationModalLoading(true);
+    try {
+      const payload = {
+        ...donationFormData,
+        amount: Number(donationFormData.amount),
+      };
+      const response = await apiService.updateDonation(selectedDonation.id || selectedDonation._id, payload);
+      const updatedDonation = response?.data || payload;
+
+      setItemsByType((prev) => ({
+        ...prev,
+        donations: prev.donations.map((donation) =>
+          (donation._id || donation.id) === (selectedDonation._id || selectedDonation.id)
+            ? { ...donation, ...updatedDonation, id: updatedDonation.id || updatedDonation._id || donation.id }
+            : donation
+        ),
+      }));
+
+      toast.success(`Donation from ${payload.name} updated`);
+      closeDonationModal();
+    } catch (error) {
+      toast.error(error.message || 'Failed to update donation');
+    } finally {
+      setDonationModalLoading(false);
+    }
+  };
+
+  const handleDeleteDonation = async (donation) => {
+    if (!window.confirm(`Delete donation from ${donation.name}?`)) return;
+
+    try {
+      await apiService.deleteDonation(donation._id || donation.id);
+      setItemsByType((prev) => ({
+        ...prev,
+        donations: prev.donations.filter((entry) => (entry._id || entry.id) !== (donation._id || donation.id)),
+      }));
+      toast.success('Donation deleted successfully');
+    } catch (error) {
+      toast.error(error.message || 'Failed to delete donation');
     }
   };
 
@@ -1316,31 +1416,50 @@ const AdminDashboardPage = () => {
                             </button>
                           </div>
                         ) : activeTab === 'donations' ? (
-                          <div className="flex items-center justify-end space-x-2">
-                            {item.paymentStatus === 'pending' && (
+                          <div className="flex flex-wrap items-center justify-end gap-2">
+                            {item.paymentStatus === 'pending' ? (
                               <>
                                 <button
                                   onClick={() => handleAcceptDonation(item)}
-                                  className="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 text-xs font-medium"
+                                  className="flex items-center gap-1 rounded-lg bg-green-100 px-3 py-1 text-xs font-medium text-green-700 hover:bg-green-200"
                                   title="Accept donation"
                                 >
-                                  <FiCheck size={14} /> Accept
+                                  <FiCheck size={14} /> Approve
                                 </button>
                                 <button
                                   onClick={() => handleRejectDonation(item)}
-                                  className="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 text-xs font-medium"
+                                  className="flex items-center gap-1 rounded-lg bg-red-100 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-200"
                                   title="Reject donation"
                                 >
                                   <FiX size={14} /> Reject
                                 </button>
                               </>
+                            ) : (
+                              <span
+                                className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
+                                  item.paymentStatus === 'accepted'
+                                    ? 'bg-green-50 text-green-700'
+                                    : 'bg-red-50 text-red-600'
+                                }`}
+                              >
+                                {item.paymentStatus === 'accepted' ? <FiCheck size={12} /> : <FiX size={12} />}
+                                {item.paymentStatus === 'accepted' ? 'Approved' : 'Rejected'}
+                              </span>
                             )}
-                            {item.paymentStatus === 'accepted' && (
-                              <span className="text-green-600 text-xs font-medium flex items-center gap-1"><FiCheck size={12} /> Accepted</span>
-                            )}
-                            {item.paymentStatus === 'rejected' && (
-                              <span className="text-red-500 text-xs font-medium flex items-center gap-1"><FiX size={12} /> Rejected</span>
-                            )}
+                            <button
+                              onClick={() => openDonationModal(item)}
+                              className="flex items-center gap-1 rounded-lg bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 hover:bg-blue-200"
+                              title="Edit donation"
+                            >
+                              <FiEdit2 size={14} /> Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteDonation(item)}
+                              className="flex items-center gap-1 rounded-lg bg-red-100 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-200"
+                              title="Delete donation"
+                            >
+                              <FiTrash2 size={14} /> Delete
+                            </button>
                           </div>
                         ) : (
                           <div className="flex items-center justify-end space-x-3">
@@ -1508,6 +1627,85 @@ const AdminDashboardPage = () => {
                     Close
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {donationModalOpen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+            onClick={closeDonationModal}
+          >
+            <div
+              className="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between border-b border-gray-200 px-6 py-4">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">Edit Donation</h3>
+                  <p className="mt-1 text-sm text-gray-500">{selectedDonation?.name || 'Donation record'}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={closeDonationModal}
+                  className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                >
+                  <FiX size={18} />
+                </button>
+              </div>
+
+              <div className="max-h-[calc(90vh-150px)] overflow-y-auto px-6 py-5">
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                  {DONATION_EDIT_FIELDS.map((field) => (
+                    <div key={field.key} className={field.type === 'textarea' ? 'md:col-span-2' : ''}>
+                      <label className="mb-1 block text-sm font-semibold text-gray-700">{field.label}</label>
+                      {field.type === 'textarea' ? (
+                        <textarea
+                          rows={4}
+                          value={donationFormData[field.key] || ''}
+                          onChange={(e) => handleDonationFieldChange(field.key, e.target.value)}
+                          className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary-500 focus:outline-none"
+                        />
+                      ) : field.type === 'select' ? (
+                        <select
+                          value={donationFormData[field.key] || field.options?.[0] || ''}
+                          onChange={(e) => handleDonationFieldChange(field.key, e.target.value)}
+                          className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary-500 focus:outline-none"
+                        >
+                          {field.options.map((option) => (
+                            <option key={option} value={option}>{option}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type={field.type}
+                          value={donationFormData[field.key] || ''}
+                          onChange={(e) => handleDonationFieldChange(field.key, e.target.value)}
+                          className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary-500 focus:outline-none"
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4">
+                <button
+                  type="button"
+                  onClick={closeDonationModal}
+                  className="rounded-lg border border-gray-300 px-5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveDonationEdit}
+                  disabled={donationModalLoading}
+                  className="rounded-lg bg-primary-600 px-5 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50"
+                >
+                  {donationModalLoading ? 'Saving...' : 'Save Changes'}
+                </button>
               </div>
             </div>
           </div>
