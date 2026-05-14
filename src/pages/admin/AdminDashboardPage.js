@@ -1367,9 +1367,15 @@ const AdminDashboardPage = () => {
                       </th>
                     ))}
                     {activeTab === 'donations' && (
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Screenshot</th>
+                      <>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Screenshot</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      </>
                     )}
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    {activeTab !== 'donations' && (
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    )}
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -1397,26 +1403,9 @@ const AdminDashboardPage = () => {
                           )}
                         </td>
                       )}
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        {activeTab === 'volunteerApplications' ? (
-                          <div className="flex items-center justify-end space-x-2">
-                            <button
-                              onClick={() => openVolunteerModal(item, 'view')}
-                              className="flex items-center gap-1 px-3 py-1 bg-sky-100 text-sky-700 rounded-lg hover:bg-sky-200 text-xs font-medium"
-                              title="View volunteer details"
-                            >
-                              <FiEye size={14} /> View
-                            </button>
-                            <button
-                              onClick={() => handleDeleteVolunteer(item)}
-                              className="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 text-xs font-medium"
-                              title="Delete volunteer"
-                            >
-                              <FiTrash2 size={14} /> Delete
-                            </button>
-                          </div>
-                        ) : activeTab === 'donations' ? (
-                          <div className="flex flex-wrap items-center justify-end gap-2">
+                      {activeTab === 'donations' && (
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex flex-wrap items-center gap-2">
                             {item.paymentStatus === 'pending' ? (
                               <>
                                 <button
@@ -1446,19 +1435,44 @@ const AdminDashboardPage = () => {
                                 {item.paymentStatus === 'accepted' ? 'Approved' : 'Rejected'}
                               </span>
                             )}
+                          </div>
+                        </td>
+                      )}
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        {activeTab === 'volunteerApplications' ? (
+                          <div className="flex items-center justify-end space-x-2">
+                            <button
+                              onClick={() => openVolunteerModal(item, 'view')}
+                              className="flex items-center gap-1 px-3 py-1 bg-sky-100 text-sky-700 rounded-lg hover:bg-sky-200 text-xs font-medium"
+                              title="View volunteer details"
+                            >
+                              <FiEye size={14} /> View
+                            </button>
+                            <button
+                              onClick={() => handleDeleteVolunteer(item)}
+                              className="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 text-xs font-medium"
+                              title="Delete volunteer"
+                            >
+                              <FiTrash2 size={14} /> Delete
+                            </button>
+                          </div>
+                        ) : activeTab === 'donations' ? (
+                          <div className="flex items-center justify-end gap-2">
                             <button
                               onClick={() => openDonationModal(item)}
-                              className="flex items-center gap-1 rounded-lg bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 hover:bg-blue-200"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200"
                               title="Edit donation"
+                              aria-label="Edit donation"
                             >
-                              <FiEdit2 size={14} /> Edit
+                              <FiEdit2 size={14} />
                             </button>
                             <button
                               onClick={() => handleDeleteDonation(item)}
-                              className="flex items-center gap-1 rounded-lg bg-red-100 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-200"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-100 text-red-700 hover:bg-red-200"
                               title="Delete donation"
+                              aria-label="Delete donation"
                             >
-                              <FiTrash2 size={14} /> Delete
+                              <FiTrash2 size={14} />
                             </button>
                           </div>
                         ) : (
